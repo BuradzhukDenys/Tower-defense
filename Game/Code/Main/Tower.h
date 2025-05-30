@@ -1,0 +1,43 @@
+#pragma once
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include "Entity.h"
+#include "Projectile.h"
+
+class Tower : public Entity
+{
+public:
+	Tower(Resources::Texture textureID, const sf::Vector2f& position, const int price,
+		const float damage, const float attackSpeed, const float attackRange);
+
+	void followTheEnemy(const Entity& enemy, const sf::RenderWindow& window);
+	bool intersects(const Tower& other) const;
+	bool intersects(const sf::Vector2f& point) const;
+	bool inRadius(const sf::Vector2f& point) const;
+
+	enum class UpgradeType
+	{
+		multiplier,
+		additive
+	};
+
+	void upgradeDamage(const float damageValue, const UpgradeType& bonusType);
+	void upgradeAttackSpeed(const float AttackSpeedValue, const UpgradeType& bonusType);
+	void upgradeRange(const float RangeValue, const UpgradeType& bonusType);
+	void setRadiusColor(const sf::Color& color);
+	void showRadius();
+
+	virtual void shoot() = 0;
+	virtual void playAnimation(sf::Time deltaTime) = 0;
+protected:
+	sf::CircleShape radius;
+	int price;
+	float damage;
+	float attackSpeed;
+	float attackRange;
+	bool canPlace;
+	bool isActive;
+	std::list<std::unique_ptr<Projectile>> projectiles;
+	float timeBetweenShots = 0;
+};
+
