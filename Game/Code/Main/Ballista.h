@@ -20,7 +20,7 @@ private:
     static constexpr int MAX_FRAMES = 5;
     int currentFrame;
     float timeForLastAnimationPlay;
-    float animationSpeed = (attackSpeed / MAX_FRAMES) - 0.08f;
+    float animationSpeed = attackSpeed / (MAX_FRAMES + 1);
     bool isAnimationPlaying = false;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

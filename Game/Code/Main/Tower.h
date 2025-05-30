@@ -27,6 +27,9 @@ public:
 	void setRadiusColor(const sf::Color& color);
 	void showRadius();
 
+	static const sf::Color BASE_ATTACK_RADIUS_COLOR;
+	static const sf::Color WRONG_PLACE_TOWER_RADIUS_COLOR;
+
 	virtual void shoot() = 0;
 	virtual void playAnimation(sf::Time deltaTime) = 0;
 protected:
@@ -35,7 +38,6 @@ protected:
 	float damage;
 	float attackSpeed;
 	float attackRange;
-	bool canPlace;
 	bool isActive;
 	std::list<std::unique_ptr<Projectile>> projectiles;
 	float timeBetweenShots = 0;

@@ -42,6 +42,8 @@ void Game::checkSelectedTower()
 
 void Game::updatePickableTower()
 {
+	checkSelectedTower();
+	checkCanPlace();
 	if (pickableTower)
 	{
 		pickableTower->showRadius();
@@ -49,11 +51,9 @@ void Game::updatePickableTower()
 
 		if (!canPlaceTower)
 		{
-			pickableTower->setRadiusColor(sf::Color(255, 0, 0, 40));
+			pickableTower->setRadiusColor(Tower::WRONG_PLACE_TOWER_RADIUS_COLOR);
 		}
 	}
-
-	
 }
 
 void Game::checkCanPlace()
@@ -76,7 +76,7 @@ void Game::Events()
 	{
 		if (event->is<sf::Event::Closed>()
 			|| (event->is<sf::Event::KeyPressed>()
-			&& event->getIf< sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scan::Escape))
+				&& event->getIf< sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scan::Escape))
 		{
 			window.close();
 		}
@@ -119,7 +119,7 @@ void Game::Events()
 			{
 				bool clickedOnInterface = false;
 				for (auto& interfaceComponent : interface) {
-					// Динамічний каст до InterfaceContainer, якщо потрібно
+
 					if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceComponent.get())) {
 						if (container->contains(mousePosition))
 						{
@@ -135,10 +135,7 @@ void Game::Events()
 				{
 					if (canPlaceTower)
 					{
-						if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
-						{
-							towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
-						}
+						towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
 					}
 				}
 			}
@@ -162,9 +159,7 @@ void Game::Events()
 void Game::Update(sf::Time deltaTime)
 {
 	mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
-	checkSelectedTower();
 	updatePickableTower();
-	checkCanPlace();
 
 	for (auto& tower : towers)
 	{

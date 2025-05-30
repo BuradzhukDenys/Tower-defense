@@ -4,12 +4,15 @@
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/System/Time.hpp>
 
+const sf::Color Tower::BASE_ATTACK_RADIUS_COLOR = sf::Color(90, 90, 90, 40);
+const sf::Color Tower::WRONG_PLACE_TOWER_RADIUS_COLOR = sf::Color(255, 0, 0, 40);
+
 Tower::Tower(Resources::Texture textureID, const sf::Vector2f& position, const int price,
 	const float damage, const float attackSpeed, const float attackRange)
 	: Entity(textureID), price(price), damage(damage), attackSpeed(attackSpeed),
-	attackRange(attackRange), radius(attackRange), canPlace(true), isActive(false)
+	attackRange(attackRange), radius(attackRange), isActive(false)
 {
-	radius.setFillColor(sf::Color(90, 90, 90, 40));
+	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);
 }
 
 //void Tower::followTheEnemy(const Entity& enemy, const sf::RenderWindow& window)
@@ -130,6 +133,6 @@ void Tower::setRadiusColor(const sf::Color& color)
 void Tower::showRadius()
 {
 	isActive = true;
-	radius.setFillColor(sf::Color(90, 90, 90, 40));
+	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);
 	radius.setPosition(this->getPosition());
 }

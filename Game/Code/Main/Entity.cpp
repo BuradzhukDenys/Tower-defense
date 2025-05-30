@@ -14,7 +14,7 @@ const sf::Vector2f& Entity::getPosition() const
 	return sprite.getPosition();
 }
 
-const void Entity::setPosition(const sf::Vector2f& position)
+void Entity::setPosition(const sf::Vector2f& position)
 {
 	sprite.setPosition(position);
 }
@@ -22,6 +22,11 @@ const void Entity::setPosition(const sf::Vector2f& position)
 const sf::Angle& Entity::getRotation() const
 {
 	return sprite.getRotation();
+}
+
+void Entity::setRotation(const sf::Angle& angle)
+{
+	sprite.setRotation(angle);
 }
 
 const sf::Sprite& Entity::getSprite() const

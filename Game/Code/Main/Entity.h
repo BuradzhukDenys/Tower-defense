@@ -10,8 +10,9 @@ public:
 	virtual ~Entity();
 
 	const sf::Vector2f& getPosition() const;
-	const void setPosition(const sf::Vector2f& position);
+	void setPosition(const sf::Vector2f& position);
 	const sf::Angle& getRotation() const;
+	void setRotation(const sf::Angle& angle);
 	const sf::Sprite& getSprite() const;
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
 protected:
