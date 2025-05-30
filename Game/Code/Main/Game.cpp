@@ -6,13 +6,18 @@
 Game::Game()
 	: windowTitle("Tower defense"),
 	windowSize(sf::VideoMode::getDesktopMode()),
-	window(windowSize, windowTitle)
+	window(windowSize, windowTitle),
+	currentRoundText(Resources::fonts.Get(Resources::Font::BasicFont)),
+	moneyText(Resources::fonts.Get(Resources::Font::BasicFont)),
+	livesText(Resources::fonts.Get(Resources::Font::BasicFont))
 {
-	interface.emplace_back(std::make_unique<InterfaceContainer>(
-		sf::Vector2f(500.f, windowSize.size.y),
-		sf::Vector2f(windowSize.size.x - 500.f, 0.f),
+	interface.emplace(Interface::InterfaceType::SelectTowerInterface, std::make_unique<InterfaceContainer>(
+		sf::Vector2f(400.f, windowSize.size.y),
+		sf::Vector2f(windowSize.size.x - 400.f, 0.f),
 		sf::Color(153, 76, 0)
 	));
+
+	initializeGameInfo();
 }
 
 void Game::Run()
@@ -70,6 +75,46 @@ void Game::checkCanPlace()
 	}
 }
 
+void Game::initializeGameInfo()
+{
+	sf::Vector2f textPosition;
+
+	auto it = interface.find(Interface::InterfaceType::SelectTowerInterface);
+	if (it != interface.end())
+	{
+		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
+		{
+			textPosition = container->getPosition();
+		}
+	}
+
+	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/25");
+	currentRoundText.setCharacterSize(GAME_FONT_SIZE);
+	currentRoundText.setPosition({ textPosition.x - currentRoundText.getGlobalBounds().size.x - MARGIN_BORDERS, MARGIN_ROWS });
+
+	livesText.setString("Lives: " + std::to_string(Interface::getLives()));
+	livesText.setCharacterSize(GAME_FONT_SIZE);
+	livesText.setPosition({ textPosition.x - livesText.getGlobalBounds().size.x - MARGIN_BORDERS, currentRoundText.getPosition().y + currentRoundText.getGlobalBounds().size.y + MARGIN_ROWS });
+
+	moneyText.setString("Money: " + std::to_string(Interface::getMoney()));
+	moneyText.setCharacterSize(GAME_FONT_SIZE);
+	moneyText.setPosition({ textPosition.x - moneyText.getGlobalBounds().size.x - MARGIN_BORDERS, livesText.getPosition().y + livesText.getGlobalBounds().size.y + MARGIN_ROWS });
+}
+
+void Game::updateGameInfo()
+{
+	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/25");
+	livesText.setString("Lives: " + std::to_string(Interface::getLives()));
+	moneyText.setString("Money: " + std::to_string(Interface::getMoney()));
+}
+
+void Game::showGameInfo()
+{
+	window.draw(currentRoundText);
+	window.draw(moneyText);
+	window.draw(livesText);
+}
+
 void Game::Events()
 {
 	while (const std::optional event = window.pollEvent())
@@ -86,30 +131,35 @@ void Game::Events()
 			if (keyReleased->scancode == sf::Keyboard::Scancode::Space && Interface::getCurrentRound() < 25)
 			{
 				Interface::nextRound();
-				Interface::setState(Interface::States::Game);
 
 				if (Interface::getCurrentState() == Interface::States::Game)
 				{
 					Interface::setState(Interface::States::Pause);
+					interface.emplace(Interface::InterfaceType::PauseInterface, std::make_unique<InterfaceContainer>(
+						sf::Vector2f(windowSize.size),
+						sf::Vector2f(0, 0),
+						sf::Color(Interface::PAUSE_BACKGROUND_COLOR)
+					));
+				}
+				else
+				{
+					interface.erase(Interface::InterfaceType::PauseInterface);
+					Interface::setState(Interface::States::Game);
 				}
 			}
 
 			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
 			{
 				Interface::addMoney(25);
-				if (towers[0])
-				{
-					towers[0]->upgradeAttackSpeed(0.1f, Tower::UpgradeType::additive);
-				}
 			}
 			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus && Interface::getMoney() > 0)
 			{
 				Interface::substractMoney(25);
 			}
 
-			if (keyReleased->scancode == sf::Keyboard::Scancode::Backspace && Interface::getHealth() > 0)
+			if (keyReleased->scancode == sf::Keyboard::Scancode::Backspace && Interface::getLives() > 0)
 			{
-				Interface::lostHealth();
+				Interface::lostlives();
 			}
 		}
 
@@ -120,7 +170,7 @@ void Game::Events()
 				bool clickedOnInterface = false;
 				for (auto& interfaceComponent : interface) {
 
-					if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceComponent.get())) {
+					if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceComponent.second.get())) {
 						if (container->contains(mousePosition))
 						{
 							container->handleClick(mousePosition);
@@ -129,14 +179,13 @@ void Game::Events()
 					}
 				}
 
-				if (towers.size() < 20
-					&& Interface::getSelectedTower() == Interface::TowerType::Ballista
-					&& !clickedOnInterface)
+				if (canPlaceTower && !clickedOnInterface)
 				{
-					if (canPlaceTower)
+					if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
 					{
-						towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
+
 					}
+					towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
 				}
 			}
 			else if (mousePressed->button == sf::Mouse::Button::Right)
@@ -166,9 +215,10 @@ void Game::Update(sf::Time deltaTime)
 		tower->Update(deltaTime, window);
 	}
 
+	updateGameInfo();
 	for (auto& interfaceComponent : interface)
 	{
-		interfaceComponent->Update(deltaTime, window);
+		interfaceComponent.second->Update(deltaTime, window);
 	}
 }
 
@@ -183,8 +233,9 @@ void Game::Render()
 
 	for (auto& interfaceComponent : interface)
 	{
-		window.draw(*interfaceComponent);
+		window.draw(*interfaceComponent.second);
 	}
+	showGameInfo();
 
 	if (pickableTower && Interface::getSelectedTower() == Interface::TowerType::Ballista)
 	{
