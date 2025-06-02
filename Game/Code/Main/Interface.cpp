@@ -26,16 +26,6 @@ int Interface::getLives()
 	return lives;
 }
 
-//const sf::Vector2f& Interface::getSize()
-//{
-//	return GUI.getSize();
-//}
-//
-//const sf::Vector2f& Interface::getPosition()
-//{
-//	return GUI.getPosition();
-//}
-
 void Interface::nextRound()
 {
 	currentRound++;

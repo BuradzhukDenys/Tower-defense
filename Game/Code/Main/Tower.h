@@ -3,6 +3,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "Entity.h"
 #include "Projectile.h"
+#include "InterfaceContainer.h"
 
 class Tower : public Entity
 {
@@ -11,6 +12,7 @@ public:
 		const float damage, const float attackSpeed, const float attackRange);
 
 	void followTheEnemy(const Entity& enemy, const sf::RenderWindow& window);
+	bool intersects(const sf::RectangleShape& rect) const;
 	bool intersects(const Tower& other) const;
 	bool intersects(const sf::Vector2f& point) const;
 	bool inRadius(const sf::Vector2f& point) const;

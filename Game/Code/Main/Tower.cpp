@@ -43,6 +43,23 @@ void Tower::followTheEnemy(const Entity& enemy, const sf::RenderWindow& window)
 	}
 }
 
+bool Tower::intersects(const sf::RectangleShape& rect) const
+{
+	sf::Vector2f center = sprite.getPosition();
+	float radius = sprite.getTextureRect().size.x / 2.0f;
+
+	sf::FloatRect rectBounds = rect.getGlobalBounds();
+
+	float nearestX = std::max(rectBounds.position.x, std::min(center.x, rectBounds.position.x + rectBounds.size.x));
+	float nearestY = std::max(rectBounds.position.y, std::min(center.y, rectBounds.position.y + rectBounds.size.y));
+
+	float dx = center.x - nearestX;
+	float dy = center.y - nearestY;
+	float distance = std::sqrt(dx * dx + dy * dy);
+
+	return distance <= radius;
+}
+
 bool Tower::intersects(const Tower& other) const
 {
 	sf::Vector2f centerA = sprite.getPosition();
@@ -61,7 +78,6 @@ bool Tower::intersects(const Tower& other) const
 bool Tower::intersects(const sf::Vector2f& point) const
 {
 	sf::Vector2f center = sprite.getPosition();
-
 	float radius = sprite.getTextureRect().size.x / 2.f;
 
 	float dx = point.x - center.x;

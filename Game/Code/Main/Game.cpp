@@ -7,16 +7,12 @@ Game::Game()
 	: windowTitle("Tower defense"),
 	windowSize(sf::VideoMode::getDesktopMode()),
 	window(windowSize, windowTitle),
+	map(sf::Vector2f(windowSize.size)),
 	currentRoundText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	moneyText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	livesText(Resources::fonts.Get(Resources::Font::BasicFont))
 {
-	interface.emplace(Interface::InterfaceType::SelectTowerInterface, std::make_unique<InterfaceContainer>(
-		sf::Vector2f(400.f, windowSize.size.y),
-		sf::Vector2f(windowSize.size.x - 400.f, 0.f),
-		sf::Color(153, 76, 0)
-	));
-
+	initializeInterface();
 	initializeGameInfo();
 }
 
@@ -27,7 +23,10 @@ void Game::Run()
 	while (window.isOpen())
 	{
 		Events();
-		Update(deltaTime.restart());
+		if (Interface::getCurrentState() == Interface::States::Game)
+		{
+			Update(deltaTime.restart());
+		}
 		Render();
 	}
 }
@@ -36,11 +35,18 @@ void Game::checkSelectedTower()
 {
 	if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
 	{
-		if (!pickableTower)
+		if (!pickableTower || dynamic_cast<Ballista*>(pickableTower.get()) == nullptr)
 		{
 			pickableTower = std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition);
 		}
 	}
+	/*else if (Interface::getSelectedTower() == Interface::TowerType::Bomber)
+	{
+		if (!pickableTower || dynamic_cast<Ballista*>(pickableTower.get()) == nullptr)
+		{
+			pickableTower = std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition);
+		}
+	}*/
 	else
 		pickableTower.reset();
 }
@@ -71,6 +77,67 @@ void Game::checkCanPlace()
 		{
 			canPlaceTower = false;
 			break;
+		}
+	}
+
+	for (const auto& interfaceContainer : interface)
+	{
+		if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceContainer.second.get()))
+		{
+			if (pickableTower && container && pickableTower->intersects(container->getGUI()))
+			{
+				canPlaceTower = false;
+				break;
+			}
+		}
+	}
+}
+
+void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, const sf::Vector2f& containerSize, const sf::Vector2f& containerPosition, const sf::Color& containerColor)
+{
+	interface.emplace(interfaceType,
+		std::make_unique<InterfaceContainer>(
+			containerSize,
+			containerPosition,
+			containerColor
+		));
+}
+
+void Game::deleteInterfaceContainer(const Interface::InterfaceType& interfaceType)
+{
+	interface.erase(interfaceType);
+}
+
+void Game::initializeInterface()
+{
+	addInterfaceContainer(Interface::InterfaceType::SelectTowerInterface,
+		sf::Vector2f(400.f, windowSize.size.y),
+		sf::Vector2f(windowSize.size.x - 400.f, 0.f),
+		sf::Color(153, 76, 0)
+	);
+
+	auto it = interface.find(Interface::InterfaceType::SelectTowerInterface);
+	if (it != interface.end());
+	{
+		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
+		{
+			std::vector<std::string> buttonsTexts;//delete
+			buttonsTexts.emplace_back("Ballista");
+			buttonsTexts.emplace_back("Bomber");
+			buttonsTexts.emplace_back("Wizzard");
+			buttonsTexts.emplace_back("Play");
+
+			std::vector<Button::ButtonType> buttonsType;
+			buttonsType.emplace_back(Button::ButtonType::Ballista);
+			buttonsType.emplace_back(Button::ButtonType::Bomber);
+			buttonsType.emplace_back(Button::ButtonType::Wizzard);
+			buttonsType.emplace_back(Button::ButtonType::Play);
+			container->addContainerText("Towers", { (container->getSize().x / 2.f) + container->getPosition().x, container->getPosition().y + 25.f});
+			container->addContainerText("Enemies", { (container->getSize().x / 2.f) + container->getPosition().x, container->getPosition().y + 25.f + 300.f });
+			container->addButton(sf::Color::Blue, "Ballista", Button::ButtonType::Ballista);
+			container->addButton(sf::Color::Blue, "Bomber", Button::ButtonType::Bomber);
+			container->addButton(sf::Color::Blue, "Wizzard", Button::ButtonType::Wizzard);
+			container->addButton(sf::Color::Blue, "Play", Button::ButtonType::Play);
 		}
 	}
 }
@@ -135,15 +202,15 @@ void Game::Events()
 				if (Interface::getCurrentState() == Interface::States::Game)
 				{
 					Interface::setState(Interface::States::Pause);
-					interface.emplace(Interface::InterfaceType::PauseInterface, std::make_unique<InterfaceContainer>(
+					addInterfaceContainer(Interface::InterfaceType::PauseInterface,
 						sf::Vector2f(windowSize.size),
 						sf::Vector2f(0, 0),
 						sf::Color(Interface::PAUSE_BACKGROUND_COLOR)
-					));
+					);
 				}
 				else
 				{
-					interface.erase(Interface::InterfaceType::PauseInterface);
+					deleteInterfaceContainer(Interface::InterfaceType::PauseInterface);
 					Interface::setState(Interface::States::Game);
 				}
 			}
@@ -163,36 +230,34 @@ void Game::Events()
 			}
 		}
 
-		if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
+		if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>())
 		{
-			if (mousePressed->button == sf::Mouse::Button::Left)
+			if (mouseReleased->button == sf::Mouse::Button::Left)
 			{
-				bool clickedOnInterface = false;
 				for (auto& interfaceComponent : interface) {
 
 					if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceComponent.second.get())) {
 						if (container->contains(mousePosition))
 						{
+							canPlaceTower = false;
 							container->handleClick(mousePosition);
-							clickedOnInterface = true;
 						}
 					}
 				}
 
-				if (canPlaceTower && !clickedOnInterface)
+				if (canPlaceTower)
 				{
 					if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
 					{
-
+						towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
 					}
-					towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
 				}
 			}
-			else if (mousePressed->button == sf::Mouse::Button::Right)
+			else if (mouseReleased->button == sf::Mouse::Button::Right)
 			{
 				for (auto it = towers.begin(); it != towers.end(); ++it)
 				{
-					if ((*it)->intersects(sf::Vector2f(mousePosition)) && !pickableTower)
+					if ((*it)->intersects(mousePosition) && !pickableTower)
 					{
 						towers.erase(it);
 						break;
@@ -226,18 +291,19 @@ void Game::Render()
 {
 	window.clear();
 
+	window.draw(map);
 	for (auto& tower : towers)
 	{
 		window.draw(*tower);
 	}
 
+	showGameInfo();
 	for (auto& interfaceComponent : interface)
 	{
 		window.draw(*interfaceComponent.second);
 	}
-	showGameInfo();
 
-	if (pickableTower && Interface::getSelectedTower() == Interface::TowerType::Ballista)
+	if (pickableTower)
 	{
 		window.draw(*pickableTower);
 	}

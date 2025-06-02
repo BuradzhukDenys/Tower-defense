@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Tower.h"
 #include "Interface.h"
+#include "Map.h"
 #include <map>
 
 const sf::String controlText = L"Control\nLMB - Поставити башню\nRMB - видалити башню";
@@ -19,7 +20,6 @@ private:
 
 	sf::Vector2f mousePosition;
 	bool canPlaceTower = true;
-	bool Pause = false;
 
 	sf::Text currentRoundText;
 	sf::Text moneyText;
@@ -28,6 +28,8 @@ private:
 	const float MARGIN_ROWS = 10.f;
 	const float MARGIN_BORDERS = 45.f;
 
+	Map map;
+
 	std::vector<std::unique_ptr<Tower>> towers;
 	std::map<Interface::InterfaceType, std::unique_ptr<Interface>> interface;
 	std::unique_ptr<Tower> pickableTower = nullptr;
@@ -35,6 +37,12 @@ private:
 	void checkSelectedTower();
 	void updatePickableTower();
 	void checkCanPlace();
+	void addInterfaceContainer(const Interface::InterfaceType& interfaceType,
+		const sf::Vector2f& containerSize,
+		const sf::Vector2f& containerPosition,
+		const sf::Color& containerColor);
+	void deleteInterfaceContainer(const Interface::InterfaceType& interfaceType);
+	void initializeInterface();
 	void initializeGameInfo();
 	void updateGameInfo();
 	void showGameInfo();

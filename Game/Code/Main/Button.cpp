@@ -1,23 +1,16 @@
 #include "Button.h"
 #include "Resources.h"
 
-Button::Button(sf::Vector2f size, sf::Vector2f position, sf::Color color)
-	: buttonShape(size), buttonText(Resources::fonts.Get(Resources::Font::BasicFont))
+Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonTextString, const ButtonType& buttonType)
+	: buttonShape(size), buttonText(Resources::fonts.Get(Resources::Font::BasicFont)), buttonType(buttonType)
 {
-	buttonShape.setPosition(position);
 	buttonShape.setFillColor(color);
-	buttonText.setString("Ballista");
-	buttonText.setCharacterSize(50);
-	buttonText.setOrigin({ buttonText.getLocalBounds().size.x / 2, buttonText.getLocalBounds().size.y / 2 });
-	buttonText.setPosition(
-		{ this->buttonShape.getPosition().x + this->buttonShape.getSize().x / 2,
-		this->buttonShape.getPosition().y + this->buttonShape.getSize().y / 2 }
-	);
-}
-
-void Button::setOrigin(sf::Vector2f point)
-{
-	this->buttonShape.setOrigin(point);
+	buttonShape.setOrigin(buttonShape.getSize() / 2.f);
+	buttonShape.setPosition(position);
+	buttonText.setString(buttonTextString);
+	buttonText.setCharacterSize(BASE_BUTTON_FONT);
+	buttonText.setOrigin(buttonText.getGlobalBounds().size / 2.f);
+	buttonText.setPosition(buttonShape.getPosition());
 }
 
 bool Button::isClicked(const sf::Vector2f& mousePos) const
@@ -30,13 +23,64 @@ const sf::Text& Button::getButtonText()
 	return buttonText;
 }
 
-sf::RectangleShape& Button::getButtonShape()
+void Button::setButtonText(const std::string& text)
+{
+	buttonText.setString(text);
+}
+
+const sf::Vector2f Button::getSize()
+{
+	return buttonShape.getSize();
+}
+
+void Button::setSize(const sf::Vector2f& size)
+{
+	buttonShape.setSize(size);
+}
+
+const sf::Vector2f Button::getPosition()
+{
+	return buttonShape.getPosition();
+}
+
+void Button::setPosition(const sf::Vector2f& position)
+{
+	buttonShape.setPosition(position);
+	buttonText.setPosition(position);
+}
+
+const sf::RectangleShape& Button::getButtonShape()
 {
 	return buttonShape;
 }
 
+const Button::ButtonType& Button::getButtonType()
+{
+	return buttonType;
+}
+
 void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)
 {
+	if (Interface::getSelectedTower() == Interface::TowerType::Ballista && buttonType == Button::ButtonType::Ballista)
+	{
+		buttonShape.setOutlineThickness(-5.f);
+		buttonShape.setOutlineColor(sf::Color::Red);
+	}
+	else if (Interface::getSelectedTower() == Interface::TowerType::Bomber && buttonType == Button::ButtonType::Bomber)
+	{
+		buttonShape.setOutlineThickness(-5.f);
+		buttonShape.setOutlineColor(sf::Color::Red);
+	}
+	else if (Interface::getSelectedTower() == Interface::TowerType::Wizzard && buttonType == Button::ButtonType::Wizzard)
+	{
+		buttonShape.setOutlineThickness(-5.f);
+		buttonShape.setOutlineColor(sf::Color::Red);
+	}
+	else
+	{
+		buttonShape.setOutlineThickness(0.f);
+		buttonShape.setOutlineColor(sf::Color::Transparent);
+	}
 }
 
 void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
