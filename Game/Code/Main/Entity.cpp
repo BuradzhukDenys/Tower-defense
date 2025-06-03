@@ -1,10 +1,13 @@
 #include "Entity.h"
 #include <SFML/Graphics/RenderTarget.hpp>
 
-Entity::Entity(Resources::Texture textureID)
+Entity::Entity(Resources::Texture textureID, const int framesCount)
 	: sprite(Resources::textures.Get(textureID))
 {
-	sprite.setOrigin(sf::Vector2f(Resources::textures.Get(textureID).getSize() / 2u));
+	sf::Vector2i textureSize(Resources::textures.Get(textureID).getSize());
+	frameSize = { textureSize.x / framesCount, textureSize.y };
+	sprite.setOrigin(sf::Vector2f(textureSize / 2));
+	sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 }
 
 Entity::~Entity() {}

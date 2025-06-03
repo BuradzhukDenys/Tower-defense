@@ -9,7 +9,7 @@ class Tower : public Entity
 {
 public:
 	Tower(Resources::Texture textureID, const sf::Vector2f& position, const int price,
-		const float damage, const float attackSpeed, const float attackRange);
+		const float damage, const float attackSpeed, const float attackRange, const int framesCount = 1);
 
 	void followTheEnemy(const Entity& enemy, const sf::RenderWindow& window);
 	bool intersects(const sf::RectangleShape& rect) const;
@@ -43,5 +43,8 @@ protected:
 	bool isActive;
 	std::list<std::unique_ptr<Projectile>> projectiles;
 	float timeBetweenShots = 0;
+	static constexpr int BASE_BALLISTA_MAX_FRAMES = 5;
+	static constexpr int BASE_BOMBER_MAX_FRAMES = 5;
+	static constexpr int BASE_WIZZARD_MAX_FRAMES = 5;
 };
 

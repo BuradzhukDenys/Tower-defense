@@ -13,19 +13,52 @@ namespace sf
 class Map : public sf::Transformable, public sf::Drawable
 {
 public:
-	Map(const sf::Vector2f& size);
-private:
 	enum class tileType
 	{
 		Grass,
-		Road,
-
+		HorizontalRoad,
+		VerticalRoad,
+		TurnRightDown,
+		TurnUp,
+		TurnRightUp,
+		TurnDown
 	};
-	sf::Sprite mapSprite;
 
-	static constexpr int MAP_WIDTH = (1920 - 400) / 40;
-	static constexpr int MAP_HEIGHT = 1920 / 40;
-	std::vector<std::vector<std::string>> map;
+	Map(const sf::Vector2u& size, const int tilesCount = BASE_TILE_NUMBER);
+	bool canPlace();
+	const int getMapWidth() const;
+	const int getMapHeight() const;
+	const Map::tileType& getTileType(const int x, const int y);
+private:
+	sf::Sprite mapSprite;
+	
+	sf::Vector2i mapTileSize;
+	static constexpr int MAP_WIDTH = (1920 - 300) / 60;
+	static constexpr int MAP_HEIGHT = 1080 / 60;
+	static constexpr int BASE_TILE_NUMBER = 7;
+	std::string mapPattern[MAP_HEIGHT] = {
+		"                                      ",
+		"                                      ",
+		"        >HHHHHHHHV                    ",
+		"        R        R                    ",
+		"        R        R                    ",
+		"        R        R                >HHH",
+		"        R        R                R   ",
+		"        R        R                R   "
+		"        R        R                R   ",
+		"HHHHHHHH^        R                R   ",
+		"                 R                R   ",
+		"                 R      >HHHHHV   R   ",
+		"                 R      R     R   R   ",
+		"                 R      R     R   R   ",
+		"                 R      R     <HHH^   ",
+		"                 <HHHHHH^             ",
+		"                                      ",
+		"                                      ",
+		"                                      ",
+		
+	};
+	std::vector<std::vector<tileType>> map;
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

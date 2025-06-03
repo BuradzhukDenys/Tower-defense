@@ -7,7 +7,7 @@ Game::Game()
 	: windowTitle("Tower defense"),
 	windowSize(sf::VideoMode::getDesktopMode()),
 	window(windowSize, windowTitle),
-	map(sf::Vector2f(windowSize.size)),
+	map(windowSize.size),
 	currentRoundText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	moneyText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	livesText(Resources::fonts.Get(Resources::Font::BasicFont))
@@ -91,6 +91,18 @@ void Game::checkCanPlace()
 			}
 		}
 	}
+
+	for (int y = 0; y < map.getMapHeight(); ++y)
+	{
+		for (int x = 0; x < map.getMapWidth(); ++x)
+		{
+			if (map.getTileType(x, y) != Map::tileType::Grass)
+			{
+				canPlaceTower = false;
+				break;
+			}
+		}
+	}
 }
 
 void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, const sf::Vector2f& containerSize, const sf::Vector2f& containerPosition, const sf::Color& containerColor)
@@ -99,7 +111,7 @@ void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, 
 		std::make_unique<InterfaceContainer>(
 			containerSize,
 			containerPosition,
-			containerColor
+		  	containerColor
 		));
 }
 
@@ -111,8 +123,8 @@ void Game::deleteInterfaceContainer(const Interface::InterfaceType& interfaceTyp
 void Game::initializeInterface()
 {
 	addInterfaceContainer(Interface::InterfaceType::SelectTowerInterface,
-		sf::Vector2f(400.f, windowSize.size.y),
-		sf::Vector2f(windowSize.size.x - 400.f, 0.f),
+		sf::Vector2f(300.f, windowSize.size.y),
+		sf::Vector2f(windowSize.size.x - 300.f, 0.f),
 		sf::Color(153, 76, 0)
 	);
 
@@ -121,19 +133,7 @@ void Game::initializeInterface()
 	{
 		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
 		{
-			std::vector<std::string> buttonsTexts;//delete
-			buttonsTexts.emplace_back("Ballista");
-			buttonsTexts.emplace_back("Bomber");
-			buttonsTexts.emplace_back("Wizzard");
-			buttonsTexts.emplace_back("Play");
-
-			std::vector<Button::ButtonType> buttonsType;
-			buttonsType.emplace_back(Button::ButtonType::Ballista);
-			buttonsType.emplace_back(Button::ButtonType::Bomber);
-			buttonsType.emplace_back(Button::ButtonType::Wizzard);
-			buttonsType.emplace_back(Button::ButtonType::Play);
-			container->addContainerText("Towers", { (container->getSize().x / 2.f) + container->getPosition().x, container->getPosition().y + 25.f});
-			container->addContainerText("Enemies", { (container->getSize().x / 2.f) + container->getPosition().x, container->getPosition().y + 25.f + 300.f });
+			container->addContainerText("Towers", { (container->getSize().x / 2.f) + container->getPosition().x, container->getPosition().y + 25.f });
 			container->addButton(sf::Color::Blue, "Ballista", Button::ButtonType::Ballista);
 			container->addButton(sf::Color::Blue, "Bomber", Button::ButtonType::Bomber);
 			container->addButton(sf::Color::Blue, "Wizzard", Button::ButtonType::Wizzard);
@@ -218,6 +218,7 @@ void Game::Events()
 			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
 			{
 				Interface::addMoney(25);
+				towers[0]->upgradeAttackSpeed(1, Tower::UpgradeType::additive);
 			}
 			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus && Interface::getMoney() > 0)
 			{

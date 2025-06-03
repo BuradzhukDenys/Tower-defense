@@ -8,8 +8,8 @@ const sf::Color Tower::BASE_ATTACK_RADIUS_COLOR = sf::Color(90, 90, 90, 40);
 const sf::Color Tower::WRONG_PLACE_TOWER_RADIUS_COLOR = sf::Color(255, 0, 0, 40);
 
 Tower::Tower(Resources::Texture textureID, const sf::Vector2f& position, const int price,
-	const float damage, const float attackSpeed, const float attackRange)
-	: Entity(textureID), price(price), damage(damage), attackSpeed(attackSpeed),
+	const float damage, const float attackSpeed, const float attackRange, const int framesCount)
+	: Entity(textureID, framesCount), price(price), damage(damage), attackSpeed(attackSpeed),
 	attackRange(attackRange), radius(attackRange), isActive(false)
 {
 	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);

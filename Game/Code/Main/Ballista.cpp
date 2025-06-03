@@ -1,11 +1,11 @@
 #include "Ballista.h"
 #include <iostream>
 
-Ballista::Ballista(Resources::Texture textureID, const sf::Vector2f& position)
-	: Tower(textureID, position, BALLISTA_PRICE, BALLISTA_DAMAGE, BALLISTA_ATTACK_SPEED, BALLISTA_ATTACK_RANGE),
-	currentFrame(0), timeForLastAnimationPlay(0)
+Ballista::Ballista(Resources::Texture textureID, const sf::Vector2f& position, const int framesCount)
+	: Tower(textureID, position, BALLISTA_PRICE, BALLISTA_DAMAGE, BALLISTA_ATTACK_SPEED, BALLISTA_ATTACK_RANGE, framesCount),
+	framesCount(framesCount), currentFrame(0), timeForLastAnimationPlay(0)
 {
-	sprite.setTextureRect(sf::IntRect({ 0, 0 }, { 85, 85 }));
+	sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 	sprite.setOrigin(sf::Vector2f(sprite.getTextureRect().size / 2));
 	sprite.setPosition(position);
 
@@ -61,17 +61,17 @@ void Ballista::playAnimation(sf::Time deltaTime)
 		currentFrame++;
 		timeForLastAnimationPlay = 0.f;
 
-		if (currentFrame < MAX_FRAMES)
+		if (currentFrame < framesCount)
 		{
 			sprite.setTextureRect(sf::IntRect(
-				{ currentFrame * 85, 0 },
-				{ 85, 85 }));
+				{ currentFrame * frameSize.x, 0 },
+				frameSize));
 		}
 		else
 		{
 			currentFrame = 0;
 			isAnimationPlaying = false;
-			sprite.setTextureRect(sf::IntRect({ 0, 0 }, { 85, 85 }));
+			sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 		}
 	}
 }

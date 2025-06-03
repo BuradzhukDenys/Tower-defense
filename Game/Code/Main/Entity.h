@@ -5,7 +5,7 @@
 class Entity : public sf::Transformable, public sf::Drawable
 {
 public:
-	Entity(Resources::Texture textureID);
+	Entity(Resources::Texture textureID, const int framesCount = 1);
 
 	virtual ~Entity();
 
@@ -17,6 +17,7 @@ public:
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
 protected:
 	sf::Sprite sprite;
+	sf::Vector2i frameSize;
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
