@@ -3,10 +3,10 @@
 #include "InterfaceContainer.h"
 #include <iostream>
 
-Game::Game()
+Game::Game(const sf::State& windowState)
 	: windowTitle("Tower defense"),
 	windowSize(sf::VideoMode::getDesktopMode()),
-	window(windowSize, windowTitle),
+	window(windowSize, windowTitle, windowState),
 	map(windowSize.size),
 	currentRoundText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	moneyText(Resources::fonts.Get(Resources::Font::BasicFont)),
@@ -84,7 +84,7 @@ void Game::checkCanPlace()
 	{
 		if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceContainer.second.get()))
 		{
-			if (pickableTower && container && pickableTower->intersects(container->getGUI()))
+			if (pickableTower && container && pickableTower->intersects(container->getGUI().getGlobalBounds()))
 			{
 				canPlaceTower = false;
 				break;
@@ -92,16 +92,9 @@ void Game::checkCanPlace()
 		}
 	}
 
-	for (int y = 0; y < map.getMapHeight(); ++y)
+	if (pickableTower && !map.canPlaceTower(*pickableTower))
 	{
-		for (int x = 0; x < map.getMapWidth(); ++x)
-		{
-			if (map.getTileType(x, y) != Map::tileType::Grass)
-			{
-				canPlaceTower = false;
-				break;
-			}
-		}
+		canPlaceTower = false;
 	}
 }
 
@@ -133,11 +126,12 @@ void Game::initializeInterface()
 	{
 		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
 		{
-			container->addContainerText("Towers", { (container->getSize().x / 2.f) + container->getPosition().x, container->getPosition().y + 25.f });
-			container->addButton(sf::Color::Blue, "Ballista", Button::ButtonType::Ballista);
-			container->addButton(sf::Color::Blue, "Bomber", Button::ButtonType::Bomber);
-			container->addButton(sf::Color::Blue, "Wizzard", Button::ButtonType::Wizzard);
-			container->addButton(sf::Color::Blue, "Play", Button::ButtonType::Play);
+			float containerCenterX = (container->getSize().x / 2.f) + container->getPosition().x;
+			container->addContainerText("Towers", sf::Vector2f(containerCenterX, container->getPosition().y));
+			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Ballista\n500$", Button::ButtonType::Ballista);
+			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Bomber", Button::ButtonType::Bomber);
+			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Wizzard", Button::ButtonType::Wizzard);
+			container->addButton(sf::Vector2f(0.f, 180.f), sf::Vector2f(containerCenterX, container->getSize().y - 250.f), sf::Color(0, 124, 0), "Play", Button::ButtonType::Play);
 		}
 	}
 }
@@ -273,7 +267,7 @@ void Game::Events()
 
 void Game::Update(sf::Time deltaTime)
 {
-	mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
+	mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 	updatePickableTower();
 
 	for (auto& tower : towers)

@@ -1,7 +1,6 @@
 #include "InterfaceContainer.h"
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Time.hpp>
-#include "Ballista.h"
 #include <iostream>
 
 InterfaceContainer::InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor)
@@ -9,88 +8,27 @@ InterfaceContainer::InterfaceContainer(const sf::Vector2f& size, const sf::Vecto
 {
 	GUI.setFillColor(backgroundColor);
 	GUI.setPosition(position);
-	/*buttons.emplace_back(std::make_unique<Button>(
-		sf::Vector2f(200.f, 200.f),
-		sf::Vector2f(600.f, 800.f),
-		sf::Color::Yellow,
-		"Hello",
-		Button::ButtonType::None
-	));*/
 }
 
-//void InterfaceContainer::addButton(const InterfaceContainer& container, const sf::Color& color, const std::string& buttonText)
-//{
-//	sf::Vector2f realSize(container.getSize().x * 0.7f, container.getSize().y / buttonsNumber);
-//	buttons.emplace_back(std::make_unique<Button>(
-//		realSize,
-//		sf::Vector2f(container.getSize().x / 2.f + container.getPosition().x, container.getPosition().y + (realSize.y / 2.f) + MARGIN_BETWEEN_BUTTONS),
-//		color,
-//		buttonText
-//	));
-//}
-
-//void InterfaceContainer::addButtons(int count, const sf::Color& color, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonType)
-//{
-//	if (count <= 0) return;
-//
-//	float W = GUI.getSize().x;
-//	float H = GUI.getSize().y;
-//	float margin = 20.f; // Відступ зверху і знизу
-//
-//	float buttonWidth = W * 0.7f;
-//	float buttonHeight = (H - 2 * margin) / count; // Висота кнопки
-//
-//	float spacing = (H - 2 * margin) / (count - 1); // Відстань між центрами
-//
-//	for (int i = 0; i < count; ++i)
-//	{
-//		float x = GUI.getPosition().x + W / 2.f;
-//		float y;
-//		if (count == 1) {
-//			y = GUI.getPosition().y + H / 2.f;
-//		}
-//		else {
-//			y = GUI.getPosition().y + margin + i * spacing;
-//		}
-//
-//		buttons.emplace_back(std::make_unique<Button>(
-//			sf::Vector2f(buttonWidth, buttonHeight),
-//			sf::Vector2f(x, y),
-//			color,
-//			texts[i],
-//			buttonType[i]
-//		));
-//	}
-//}
-
-void InterfaceContainer::addButton(const sf::Color& color, const std::string& text, const Button::ButtonType& buttonType)
+void InterfaceContainer::addButtons(const int buttonsCount, const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& text, const Button::ButtonType& buttonType)
 {
 	auto ptrButton = std::make_unique<Button>(
-		sf::Vector2f(GUI.getSize().x * 0.7f, (GUI.getSize().y / 4.f) - MARGIN_BETWEEN_BUTTONS),
-		sf::Vector2f(GUI.getPosition().x + (GUI.getSize().x / 2.f), GUI.getPosition().y + MARGIN_BETWEEN_BUTTONS),
+		sf::Vector2f(GUI.getSize().x * 0.7f, size.y),
+		sf::Vector2f(position.x, position.y + MARGIN_BETWEEN_COMPONENTS),
 		color,
 		text,
 		buttonType
 	);
-
-	ptrButton->setPosition({ ptrButton->getPosition().x, ptrButton->getPosition().y + ptrButton->getButtonShape().getOrigin().y });
 	
-	for (const auto& text : containerTexts)
+
+	if (!this->containerTexts.empty())
 	{
-		if (text && GUI.getGlobalBounds().contains(text->getPosition()))
+		for (const auto& text : containerTexts)
 		{
-			std::cout << "X: " << text->getPosition().x << ", Y: " << text->getPosition().y << "\n";
-			ptrButton->setSize({ ptrButton->getSize().x, ptrButton->getSize().y - text->getGlobalBounds().size.y });
-			ptrButton->setPosition({ ptrButton->getPosition().x, ptrButton->getPosition().y + text->getGlobalBounds().position.y + text->getGlobalBounds().size.y });
-			break;
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + text->getPosition().y + text->getGlobalBounds().size.y));
 		}
 	}
 
-	int buttonsCount = buttons.size() + 1;
-
-	ptrButton->setPosition({ ptrButton->getPosition().x, ptrButton->getPosition().y * buttonsCount });
-
-	std::cout << buttonsCount << "\n";
 	buttons.emplace_back(std::move(ptrButton));
 }
 
@@ -98,7 +36,15 @@ void InterfaceContainer::addContainerText(const std::string& containerString, co
 {
 	auto ptrText = std::make_unique<sf::Text>(Resources::fonts.Get(Resources::Font::BasicFont), containerString, fontSize);
 	ptrText->setOrigin(ptrText->getLocalBounds().size / 2.f);
-	ptrText->setPosition({ position.x, position.y + ptrText->getOrigin().y });
+
+	sf::Vector2f positionInGUI = position;
+
+	if (!GUI.getGlobalBounds().contains(positionInGUI))
+	{
+		positionInGUI = GUI.getPosition();
+	}
+
+	ptrText->setPosition(sf::Vector2f(positionInGUI.x, positionInGUI.y + ptrText->getOrigin().y + MARGIN_BETWEEN_COMPONENTS));
 
 	containerTexts.emplace_back(std::move(ptrText));
 }
@@ -116,6 +62,22 @@ const sf::Vector2f& InterfaceContainer::getSize() const
 const sf::Vector2f& InterfaceContainer::getPosition() const
 {
 	return GUI.getPosition();
+}
+
+const sf::Vector2f& InterfaceContainer::getContainerTextSize(const std::string& text) const
+{
+	if (!containerTexts.empty())
+	{
+		for (const auto& containerText : containerTexts)
+		{
+			if (containerText->getString() == text)
+			{
+				return containerText->getPosition() + containerText->getGlobalBounds().size;
+			}
+		}
+	}
+
+	return { 0, MARGIN_BETWEEN_COMPONENTS };
 }
 
 void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)

@@ -1,15 +1,18 @@
 #include "Button.h"
+#include "Interface.h"
 #include "Resources.h"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Rendertarget.hpp>
 
 Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonTextString, const ButtonType& buttonType)
 	: buttonShape(size), buttonText(Resources::fonts.Get(Resources::Font::BasicFont)), buttonType(buttonType)
 {
 	buttonShape.setFillColor(color);
-	buttonShape.setOrigin(buttonShape.getSize() / 2.f);
+	buttonShape.setOrigin({ buttonShape.getSize().x / 2.f, 0 });
 	buttonShape.setPosition(position);
 	buttonText.setString(buttonTextString);
 	buttonText.setCharacterSize(BASE_BUTTON_FONT);
-	buttonText.setOrigin(buttonText.getGlobalBounds().size / 2.f);
+	buttonText.setOrigin({ buttonText.getGlobalBounds().size.x / 2.f, 0 });
 	buttonText.setPosition(buttonShape.getPosition());
 }
 
@@ -57,6 +60,11 @@ const sf::RectangleShape& Button::getButtonShape()
 const Button::ButtonType& Button::getButtonType()
 {
 	return buttonType;
+}
+
+void Button::setScale(const sf::Vector2f& scale)
+{
+	buttonShape.setScale(scale);
 }
 
 void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)

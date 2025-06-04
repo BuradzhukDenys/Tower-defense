@@ -4,6 +4,7 @@
 #include <SFML/System/String.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
+#include "Tower.h"
 
 namespace sf
 {
@@ -25,10 +26,7 @@ public:
 	};
 
 	Map(const sf::Vector2u& size, const int tilesCount = BASE_TILE_NUMBER);
-	bool canPlace();
-	const int getMapWidth() const;
-	const int getMapHeight() const;
-	const Map::tileType& getTileType(const int x, const int y);
+	bool canPlaceTower(const Tower& tower);
 private:
 	sf::Sprite mapSprite;
 	
@@ -37,26 +35,24 @@ private:
 	static constexpr int MAP_HEIGHT = 1080 / 60;
 	static constexpr int BASE_TILE_NUMBER = 7;
 	std::string mapPattern[MAP_HEIGHT] = {
-		"                                      ",
-		"                                      ",
-		"        >HHHHHHHHV                    ",
-		"        R        R                    ",
-		"        R        R                    ",
-		"        R        R                >HHH",
-		"        R        R                R   ",
-		"        R        R                R   "
-		"        R        R                R   ",
-		"HHHHHHHH^        R                R   ",
-		"                 R                R   ",
-		"                 R      >HHHHHV   R   ",
-		"                 R      R     R   R   ",
-		"                 R      R     R   R   ",
-		"                 R      R     <HHH^   ",
-		"                 <HHHHHH^             ",
-		"                                      ",
-		"                                      ",
-		"                                      ",
-		
+		"                           ",
+		"                           ",
+		"                           ",
+		"                           ",
+		"      >HHHHHHHHV           ",
+		"      R        R           ",
+		"      R        R           ",
+		"      R        R           ",
+		"      R        R           ",
+		"HHHHHH^        R           ",
+		"               R     >HHHHH",
+		"               R     R     ",
+		"               R     R     ",
+		"               R     R     ",
+		"               <HHHHH^     ",
+		"                           ",
+		"                           ",
+		"                           "
 	};
 	std::vector<std::vector<tileType>> map;
 

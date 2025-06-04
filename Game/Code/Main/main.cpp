@@ -5,7 +5,7 @@ using namespace std;
 int main()
 {
 	Resources::Initialize();
-	Game game;
+	Game game(sf::State::Windowed);
 	game.Run();
 
 	return 0;

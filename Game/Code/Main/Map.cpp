@@ -7,8 +7,8 @@ Map::Map(const sf::Vector2u& size, const int tilesCount)
 	MAP_WIDTH((size.x - 400.f) / 40.f),
 	MAP_HEIGHT(size.y / 40.f)*/
 {
-	sf::Vector2i mapTilesSize(Resources::textures.Get(Resources::Texture::MapTiles).getSize());
-	mapTileSize = { mapTilesSize.x / tilesCount, mapTilesSize.y };
+	sf::Vector2i mapTilesTextureSize(Resources::textures.Get(Resources::Texture::MapTiles).getSize());
+	mapTileSize = { mapTilesTextureSize.x / tilesCount, mapTilesTextureSize.y };
 	mapSprite.setTextureRect(sf::IntRect({0, 0}, mapTileSize));
 	map.resize(MAP_HEIGHT, std::vector<tileType>(MAP_WIDTH, tileType::Grass));
 
@@ -46,24 +46,30 @@ Map::Map(const sf::Vector2u& size, const int tilesCount)
 	}
 }
 
-bool Map::canPlace()
+bool Map::canPlaceTower(const Tower& tower)
 {
-	return false;
-}
+	for (int y = 0; y < MAP_HEIGHT; ++y)
+	{
+		for (int x = 0; x < MAP_WIDTH; ++x)
+		{
+			sf::FloatRect tileRect(
+				sf::Vector2f(x * mapTileSize.x,
+				y * mapTileSize.y),
+				sf::Vector2f(mapTileSize.x,
+				mapTileSize.y)
+			);
 
-const int Map::getMapWidth() const
-{
-	return MAP_WIDTH;
-}
+			if (tower.intersects(tileRect))
+			{
+				if (map[y][x] != Map::tileType::Grass)
+				{
+					return false;
+				}
+			}
+		}
+	}
 
-const int Map::getMapHeight() const
-{
-	return MAP_HEIGHT;
-}
-
-const Map::tileType& Map::getTileType(const int x, const int y)
-{
-	return map[y][x];
+	return true;
 }
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const

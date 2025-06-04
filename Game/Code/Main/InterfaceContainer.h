@@ -1,7 +1,7 @@
 #pragma once
 #include "Button.h"
+#include "Interface.h"
 #include <SFML/System/Vector2.hpp>
-#include <list>
 
 class Tower;
 
@@ -15,14 +15,13 @@ class InterfaceContainer :
 {
 public:
     InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor);
-    //void addButton(const InterfaceContainer& container, const sf::Color& color, const std::string& buttonText);
-    //void addButtons(int count, const sf::Color& color, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonType);
-    void addButton(const sf::Color& color, const std::string& text, const Button::ButtonType& buttonType);
+    void addButtons(const int buttonsCount, const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& text, const Button::ButtonType& buttonType);
     void addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize = BASE_CONTAINER_FONT_SIZE);
 
     const sf::RectangleShape& getGUI() const;
     const sf::Vector2f& getSize() const;
     const sf::Vector2f& getPosition() const;
+    const sf::Vector2f& getContainerTextSize(const std::string& text) const;
 
     void handleClick(const sf::Vector2f& mousePos);
     virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) override;
@@ -30,10 +29,10 @@ public:
 private:
     sf::RectangleShape GUI;
     sf::Color backgroundColor;
-    std::vector<std::unique_ptr<sf::Text>> containerTexts;
     static constexpr float BASE_CONTAINER_FONT_SIZE = 50.f;
-    const float MARGIN_BETWEEN_BUTTONS = 25.f;
+    const float MARGIN_BETWEEN_COMPONENTS = 25.f;
     std::vector<std::unique_ptr<Button>> buttons;
+    std::vector<std::unique_ptr<sf::Text>> containerTexts;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

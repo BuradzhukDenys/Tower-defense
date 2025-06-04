@@ -1,9 +1,15 @@
 #pragma once
-#include "Interface.h"
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
-class Button :
-    public Interface
+namespace sf
+{
+    class Time;
+    class RenderWindow;
+    class RenderTarget;
+};
+
+class Button : public sf::Drawable
 {
 public:
     enum class ButtonType
@@ -29,11 +35,12 @@ public:
     void setPosition(const sf::Vector2f& position);
     const sf::RectangleShape& getButtonShape();
     const ButtonType& getButtonType();
+    void setScale(const sf::Vector2f& scale);
 
-    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) override;
+    void Update(sf::Time deltaTime, const sf::RenderWindow& window);
 private:
     friend class InterfaceContainer;
-
+    
     bool isClicked(const sf::Vector2f& mousePos) const;
     sf::RectangleShape buttonShape;
     sf::Text buttonText;

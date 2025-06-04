@@ -37,6 +37,11 @@ const sf::Sprite& Entity::getSprite() const
 	return sprite;
 }
 
+const sf::Vector2f& Entity::getSize() const
+{
+	return sprite.getGlobalBounds().size;
+}
+
 void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(sprite, states);

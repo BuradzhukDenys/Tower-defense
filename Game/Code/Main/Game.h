@@ -10,7 +10,7 @@ const sf::String controlText = L"Control\nLMB - Поставити башню\nRMB - видалити 
 class Game
 {
 public:
-	Game();
+	Game(const sf::State& windowState);
 
 	void Run();
 private:
@@ -41,6 +41,11 @@ private:
 		const sf::Vector2f& containerSize,
 		const sf::Vector2f& containerPosition,
 		const sf::Color& containerColor);
+	void addTextToInterfaceContainer(const Interface::InterfaceType& interfaceType,
+		const std::string& containerText,
+		const sf::Vector2f& position,
+		const float fontSize = 50.f);
+	void addButtonToInterfaceContainer(const Interface::InterfaceType& interfaceType);
 	void deleteInterfaceContainer(const Interface::InterfaceType& interfaceType);
 	void initializeInterface();
 	void initializeGameInfo();

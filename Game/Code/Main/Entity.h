@@ -14,6 +14,7 @@ public:
 	const sf::Angle& getRotation() const;
 	void setRotation(const sf::Angle& angle);
 	const sf::Sprite& getSprite() const;
+	const sf::Vector2f& getSize() const;
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
 protected:
 	sf::Sprite sprite;

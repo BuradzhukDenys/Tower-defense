@@ -12,7 +12,7 @@ public:
 		const float damage, const float attackSpeed, const float attackRange, const int framesCount = 1);
 
 	void followTheEnemy(const Entity& enemy, const sf::RenderWindow& window);
-	bool intersects(const sf::RectangleShape& rect) const;
+	bool intersects(const sf::FloatRect& rect) const;
 	bool intersects(const Tower& other) const;
 	bool intersects(const sf::Vector2f& point) const;
 	bool inRadius(const sf::Vector2f& point) const;

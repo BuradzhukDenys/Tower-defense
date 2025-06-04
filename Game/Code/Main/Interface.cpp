@@ -1,5 +1,4 @@
 #include "Interface.h"
-#include "Resources.h"
 #include <iostream>
 
 int Interface::currentRound = 1;
