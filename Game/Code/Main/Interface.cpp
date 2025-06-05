@@ -25,9 +25,17 @@ int Interface::getLives()
 	return lives;
 }
 
+int Interface::getMaxRoudns()
+{
+	return MAX_ROUNDS;
+}
+
 void Interface::nextRound()
 {
-	currentRound++;
+	if (currentRound < MAX_ROUNDS)
+	{
+		currentRound++;
+	}
 }
 
 void Interface::addMoney(const int value)
@@ -37,12 +45,18 @@ void Interface::addMoney(const int value)
 
 void Interface::substractMoney(const int value)
 {
-	money -= value;
+	if (money > 0)
+	{
+		money -= value;
+	}
 }
 
 void Interface::lostlives()
 {
-	lives--;
+	if (lives > 0)
+	{
+		lives--;
+	}
 }
 
 Interface::States Interface::getCurrentState()

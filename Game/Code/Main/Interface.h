@@ -48,6 +48,7 @@ public:
 	static int getCurrentRound();
 	static int getMoney();
 	static int getLives();
+	static int getMaxRoudns();
 
 	static void nextRound();
 	static void addMoney(const int value);
@@ -56,6 +57,7 @@ public:
 
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
 private:
+	static constexpr int MAX_ROUNDS = 25;
 	static States currentState;
 	static TowerType selectedTower;
 	static int currentRound;

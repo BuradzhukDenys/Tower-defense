@@ -3,6 +3,7 @@
 #include "Tower.h"
 #include "Interface.h"
 #include "Map.h"
+#include "Enemy.h"
 #include <map>
 
 const sf::String controlText = L"Control\nLMB - Поставити башню\nRMB - видалити башню";
@@ -32,6 +33,7 @@ private:
 
 	std::vector<std::unique_ptr<Tower>> towers;
 	std::map<Interface::InterfaceType, std::unique_ptr<Interface>> interface;
+	std::vector<std::unique_ptr<Enemy>> enemies;
 	std::unique_ptr<Tower> pickableTower = nullptr;
 
 	void checkSelectedTower();
@@ -41,15 +43,16 @@ private:
 		const sf::Vector2f& containerSize,
 		const sf::Vector2f& containerPosition,
 		const sf::Color& containerColor);
-	void addTextToInterfaceContainer(const Interface::InterfaceType& interfaceType,
+	/*void addTextToInterfaceContainer(const Interface::InterfaceType& interfaceType,
 		const std::string& containerText,
 		const sf::Vector2f& position,
 		const float fontSize = 50.f);
-	void addButtonToInterfaceContainer(const Interface::InterfaceType& interfaceType);
+	void addButtonToInterfaceContainer(const Interface::InterfaceType& interfaceType);*/
 	void deleteInterfaceContainer(const Interface::InterfaceType& interfaceType);
 	void initializeInterface();
 	void initializeGameInfo();
 	void updateGameInfo();
+	void checkEnemyReachedEnd();
 	void showGameInfo();
 
 	void Events();

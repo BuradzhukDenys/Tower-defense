@@ -1,6 +1,7 @@
 #include "Map.h"
 #include <SFML/Graphics.hpp>
 #include "Resources.h"
+#include <iostream>
 
 Map::Map(const sf::Vector2u& size, const int tilesCount)
 	: mapSprite(Resources::textures.Get(Resources::Texture::MapTiles))/*,
@@ -9,7 +10,7 @@ Map::Map(const sf::Vector2u& size, const int tilesCount)
 {
 	sf::Vector2i mapTilesTextureSize(Resources::textures.Get(Resources::Texture::MapTiles).getSize());
 	mapTileSize = { mapTilesTextureSize.x / tilesCount, mapTilesTextureSize.y };
-	mapSprite.setTextureRect(sf::IntRect({0, 0}, mapTileSize));
+	mapSprite.setTextureRect(sf::IntRect({ 0, 0 }, mapTileSize));
 	map.resize(MAP_HEIGHT, std::vector<tileType>(MAP_WIDTH, tileType::Grass));
 
 	for (int y = 0; y < MAP_HEIGHT; ++y)
@@ -54,9 +55,9 @@ bool Map::canPlaceTower(const Tower& tower)
 		{
 			sf::FloatRect tileRect(
 				sf::Vector2f(x * mapTileSize.x,
-				y * mapTileSize.y),
+					y * mapTileSize.y),
 				sf::Vector2f(mapTileSize.x,
-				mapTileSize.y)
+					mapTileSize.y)
 			);
 
 			if (tower.intersects(tileRect))
@@ -70,6 +71,90 @@ bool Map::canPlaceTower(const Tower& tower)
 	}
 
 	return true;
+}
+
+void Map::updateTurnEnemy(Enemy& enemy)
+{
+	for (int y = 0; y < MAP_HEIGHT; ++y)
+	{
+		for (int x = 0; x < MAP_WIDTH; ++x)
+		{
+			sf::FloatRect tileRect(
+				sf::Vector2f(x * mapTileSize.x,
+					y * mapTileSize.y),
+				sf::Vector2f(mapTileSize.x,
+					mapTileSize.y)
+			);
+
+			//Перевіряємо чи ворог знаходиться в центрі тайла, щоб повернути його. Ми перевіряємо позицію
+			//центра ворога та позицію центра тайла, перевіряємо чи їх різниця менша за погрішність в 2 пікселя
+			const float epsilon = 2.f;
+			if (std::abs(enemy.getSprite().getGlobalBounds().getCenter().x - tileRect.getCenter().x) < epsilon &&
+				std::abs(enemy.getSprite().getGlobalBounds().getCenter().y - tileRect.getCenter().y) < epsilon)
+			{
+				if (map[y][x] == Map::tileType::TurnUp)
+				{
+					enemy.setDirection(Enemy::Direction::Up);
+					break;
+				}
+				else if (map[y][x] == Map::tileType::TurnDown)
+				{
+					enemy.setDirection(Enemy::Direction::Down);
+					break;
+				}
+				else if (map[y][x] == Map::tileType::TurnRightDown ||
+					map[y][x] == Map::tileType::TurnRightUp)
+				{
+					enemy.setDirection(Enemy::Direction::Right);
+					break;
+				}
+			}
+		}
+	}
+}
+
+const sf::Vector2f& Map::getStartMap() const
+{
+	for (int y = 0; y < MAP_HEIGHT; ++y)
+	{
+		if (map[y][0] != Map::tileType::Grass)
+		{
+			sf::FloatRect tileRect(
+				sf::Vector2f(0, y * mapTileSize.y),
+				sf::Vector2f(mapTileSize.x,
+					mapTileSize.y)
+			);
+
+			return sf::Vector2f(tileRect.position.x, tileRect.getCenter().y);
+		}
+	}
+}
+
+const sf::Vector2f& Map::getEndMap() const
+{
+	for (int y = 0; y < MAP_HEIGHT; ++y)
+	{
+		if (map[y][MAP_WIDTH - 1] != Map::tileType::Grass)
+		{
+			sf::FloatRect tileRect(
+				sf::Vector2f(MAP_WIDTH * mapTileSize.x, y * mapTileSize.y),
+				sf::Vector2f(mapTileSize.x,
+					mapTileSize.y)
+			);
+
+			return sf::Vector2f(tileRect.position.x, tileRect.getCenter().y);
+		}
+	}
+}
+
+const float Map::getMapWidth() const
+{
+	return MAP_WIDTH * mapTileSize.x;
+}
+
+const float Map::getMapHeight() const
+{
+	return MAP_HEIGHT * mapTileSize.y;
 }
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const

@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Ballista.h"
+#include "Goblin.h"
 #include "InterfaceContainer.h"
 #include <iostream>
 
@@ -104,7 +105,7 @@ void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, 
 		std::make_unique<InterfaceContainer>(
 			containerSize,
 			containerPosition,
-		  	containerColor
+			containerColor
 		));
 }
 
@@ -127,11 +128,43 @@ void Game::initializeInterface()
 		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
 		{
 			float containerCenterX = (container->getSize().x / 2.f) + container->getPosition().x;
-			container->addContainerText("Towers", sf::Vector2f(containerCenterX, container->getPosition().y));
+			/*container->addContainerText("Towers", sf::Vector2f(containerCenterX, container->getPosition().y));
 			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Ballista\n500$", Button::ButtonType::Ballista);
 			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Bomber", Button::ButtonType::Bomber);
 			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Wizzard", Button::ButtonType::Wizzard);
-			container->addButton(sf::Vector2f(0.f, 180.f), sf::Vector2f(containerCenterX, container->getSize().y - 250.f), sf::Color(0, 124, 0), "Play", Button::ButtonType::Play);
+			container->addButton(sf::Vector2f(0.f, 180.f), sf::Vector2f(containerCenterX, container->getSize().y - 250.f), sf::Color(0, 124, 0), "Play", Button::ButtonType::Play);*/
+			std::vector<sf::Vector2f> buttonSizes = {
+				sf::Vector2f(0, 150.f),
+				sf::Vector2f(0, 150.f),
+				sf::Vector2f(0, 150.f)
+			};
+
+			std::vector<sf::Vector2f> buttonPositions = {
+				sf::Vector2f(containerCenterX, container->getPosition().y),
+				sf::Vector2f(containerCenterX, container->getPosition().y),
+				sf::Vector2f(containerCenterX, container->getPosition().y)
+			};
+
+			std::vector<sf::Color> buttonColors = {
+				sf::Color::Blue,
+				sf::Color::Blue,
+				sf::Color::Blue
+			};
+
+			std::vector<std::string> buttonTexts = {
+				"Ballista",
+				"Bomber",
+				"Wizzard"
+			};
+
+			std::vector<Button::ButtonType> buttonTypes = {
+				Button::ButtonType::Ballista,
+				Button::ButtonType::Bomber,
+				Button::ButtonType::Wizzard
+			};
+
+			container->addContainerText("Towers", sf::Vector2f(containerCenterX, container->getPosition().y));
+			container->addButtons(3, buttonSizes, buttonPositions, buttonColors, buttonTexts, buttonTypes);
 		}
 	}
 }
@@ -149,7 +182,7 @@ void Game::initializeGameInfo()
 		}
 	}
 
-	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/25");
+	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/" + std::to_string(Interface::getMaxRoudns()));
 	currentRoundText.setCharacterSize(GAME_FONT_SIZE);
 	currentRoundText.setPosition({ textPosition.x - currentRoundText.getGlobalBounds().size.x - MARGIN_BORDERS, MARGIN_ROWS });
 
@@ -164,9 +197,22 @@ void Game::initializeGameInfo()
 
 void Game::updateGameInfo()
 {
-	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/25");
+	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/" + std::to_string(Interface::getMaxRoudns()));
 	livesText.setString("Lives: " + std::to_string(Interface::getLives()));
 	moneyText.setString("Money: " + std::to_string(Interface::getMoney()));
+}
+
+void Game::checkEnemyReachedEnd()
+{
+	for (auto it = enemies.begin(); it != enemies.end(); ++it)
+	{
+		if ((*it)->getPosition().x > map.getMapWidth())
+		{
+			enemies.erase(it);
+			Interface::lostlives();
+			break;
+		}
+	}
 }
 
 void Game::showGameInfo()
@@ -189,7 +235,7 @@ void Game::Events()
 
 		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
-			if (keyReleased->scancode == sf::Keyboard::Scancode::Space && Interface::getCurrentRound() < 25)
+			if (keyReleased->scancode == sf::Keyboard::Scancode::Space)
 			{
 				Interface::nextRound();
 
@@ -214,14 +260,19 @@ void Game::Events()
 				Interface::addMoney(25);
 				towers[0]->upgradeAttackSpeed(1, Tower::UpgradeType::additive);
 			}
-			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus && Interface::getMoney() > 0)
+			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus)
 			{
 				Interface::substractMoney(25);
 			}
 
-			if (keyReleased->scancode == sf::Keyboard::Scancode::Backspace && Interface::getLives() > 0)
+			if (keyReleased->scancode == sf::Keyboard::Scancode::Backspace)
 			{
 				Interface::lostlives();
+			}
+
+			if (keyReleased->scancode == sf::Keyboard::Scancode::W)
+			{
+				enemies.emplace_back(std::make_unique<Goblin>(Resources::Texture::Goblin, map.getStartMap()));
 			}
 		}
 
@@ -270,6 +321,16 @@ void Game::Update(sf::Time deltaTime)
 	mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 	updatePickableTower();
 
+	for (const auto& enemy : enemies)
+	{
+		if (enemy)
+		{
+			enemy->Update(deltaTime, window);
+			map.updateTurnEnemy(*enemy);
+		}
+	}
+	checkEnemyReachedEnd();
+
 	for (auto& tower : towers)
 	{
 		tower->Update(deltaTime, window);
@@ -287,6 +348,10 @@ void Game::Render()
 	window.clear();
 
 	window.draw(map);
+	for (auto& enemy : enemies)
+	{
+		window.draw(*enemy);
+	}
 	for (auto& tower : towers)
 	{
 		window.draw(*tower);

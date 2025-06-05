@@ -5,10 +5,13 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include "Tower.h"
+#include "Enemy.h"
 
 namespace sf
 {
 	class RenderTarget;
+	class Time;
+	class RenderWindow;
 }
 
 class Map : public sf::Transformable, public sf::Drawable
@@ -27,6 +30,11 @@ public:
 
 	Map(const sf::Vector2u& size, const int tilesCount = BASE_TILE_NUMBER);
 	bool canPlaceTower(const Tower& tower);
+	void updateTurnEnemy(Enemy& enemy);
+	const sf::Vector2f& getStartMap() const;
+	const sf::Vector2f& getEndMap() const;
+	const float getMapWidth() const;
+	const float getMapHeight() const;
 private:
 	sf::Sprite mapSprite;
 	

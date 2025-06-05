@@ -8,7 +8,8 @@ public:
 	{
 		BallistaSpriteSheet,
 		BallistaShot,
-		MapTiles
+		MapTiles,
+		Goblin
 	};
 
 	enum class Font

@@ -10,26 +10,33 @@ InterfaceContainer::InterfaceContainer(const sf::Vector2f& size, const sf::Vecto
 	GUI.setPosition(position);
 }
 
-void InterfaceContainer::addButtons(const int buttonsCount, const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& text, const Button::ButtonType& buttonType)
+void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const std::vector<sf::Vector2f>& positions, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes)
 {
-	auto ptrButton = std::make_unique<Button>(
-		sf::Vector2f(GUI.getSize().x * 0.7f, size.y),
-		sf::Vector2f(position.x, position.y + MARGIN_BETWEEN_COMPONENTS),
-		color,
-		text,
-		buttonType
-	);
-	
-
-	if (!this->containerTexts.empty())
+	for (size_t i = 0; i < buttonsCount; i++)
 	{
-		for (const auto& text : containerTexts)
-		{
-			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + text->getPosition().y + text->getGlobalBounds().size.y));
-		}
-	}
+		auto ptrButton = std::make_unique<Button>(
+			sf::Vector2f(GUI.getSize().x * 0.7f, sizes[i].y),
+			sf::Vector2f(positions[i].x, positions[i].y + MARGIN_BETWEEN_COMPONENTS),
+			colors[i],
+			texts[i],
+			buttonTypes[i]
+		);
 
-	buttons.emplace_back(std::move(ptrButton));
+		if (!this->containerTexts.empty() && buttons.empty())
+		{
+			for (const auto& text : containerTexts)
+			{
+				ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + text->getPosition().y + text->getGlobalBounds().size.y));
+			}
+		}
+
+		if (!this->buttons.empty())
+		{
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + buttons[i - 1]->getPosition().y + buttons[i - 1]->getSize().y));
+		}
+		
+		buttons.emplace_back(std::move(ptrButton));
+	}
 }
 
 void InterfaceContainer::addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize)
