@@ -14,7 +14,12 @@ Ballista::Ballista(Resources::Texture textureID, const sf::Vector2f& position, c
 	radius.setPosition(sprite.getPosition());
 }
 
-void Ballista::Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies)
+int Ballista::getPrice()
+{
+	return BALLISTA_PRICE;
+}
+
+void Ballista::Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies)
 {
 	timeBetweenShots -= deltaTime.asSeconds();
 	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
@@ -33,36 +38,7 @@ void Ballista::Update(sf::Time deltaTime, const sf::RenderWindow& window, const 
 		}
 	}
 
-	//------------followTheEnemy(Tower.h)-------------------//
-	/*sf::Vector2f towerPosition(sprite.getPosition());
-
-	sf::Vector2f distanceToCursor = mousePosition - towerPosition;
-	float angleInRadians = std::atan2(distanceToCursor.y, distanceToCursor.x);
-	sf::Angle angle(sf::radians(angleInRadians));
-	if (radius.getGlobalBounds().contains(mousePosition))
-	{
-		sprite.setRotation(angle);
-		shoot();
-	}*/
-	//-------------------------------------------------------//
-
-	for (const auto& enemy : enemies)
-	{
-		if (!enemy) continue;
-		if (inRadius(enemy->getPosition()))
-		{
-			// Повертаємо вежу на ворога
-			sf::Vector2f towerPos = sprite.getPosition();
-			sf::Vector2f enemyPos = enemy->getPosition();
-			sf::Vector2f toEnemy = enemyPos - towerPos;
-			float angleRad = std::atan2(toEnemy.y, toEnemy.x);
-			sprite.setRotation(sf::radians(angleRad));
-
-			// Стріляємо
-			shoot();
-			break; // Тільки по першому ворогу в радіусі
-		}
-	}
+	followTheEnemy(enemies);
 
 	if (isAnimationPlaying)
 	{
@@ -103,7 +79,8 @@ void Ballista::shoot()
 			Resources::Texture::BallistaShot,
 			*this,
 			BALLISTA_PROJECTILE_SPEED,
-			BALLISTA_PROJECTILE_DURATION
+			BALLISTA_PROJECTILE_DURATION,
+			BALLISTA_DAMAGE
 		));
 		timeBetweenShots = 1.f / attackSpeed;
 		isAnimationPlaying = true;

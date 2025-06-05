@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <SFML/Graphics/Font.hpp>
-#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio.hpp>
 
 template <typename ResourceType, typename ResourceIdentifier>
 class ResourceManager

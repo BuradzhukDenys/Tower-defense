@@ -15,36 +15,25 @@ Tower::Tower(Resources::Texture textureID, const sf::Vector2f& position, const i
 	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);
 }
 
-bool Tower::followTheEnemy(const Entity& enemy)
+void Tower::followTheEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
 {
-	if (inRadius(enemy.getPosition()))
+	for (const auto& enemy : enemies)
 	{
-		sf::Vector2f towerPosition(sprite.getPosition());
+		if (!enemy) continue;
+		if (inRadius(enemy->getPosition()))
+		{
+			sf::Vector2f towerPosition(sprite.getPosition());
 
-		sf::Vector2f distanceToEnemy = enemy.getPosition() - towerPosition;
-		float angleInRadians = std::atan2(distanceToEnemy.y, distanceToEnemy.x);
-		sf::Angle angle(sf::radians(angleInRadians));
-		sprite.setRotation(angle);
+			sf::Vector2f distanceToEnemy = enemy->getPosition() - towerPosition;
+			float angleInRadians = std::atan2(distanceToEnemy.y, distanceToEnemy.x);
+			sf::Angle angle(sf::radians(angleInRadians));
+			sprite.setRotation(angle);
 
-		return true;
+			shoot();
+			break;
+		}
 	}
-
-	return false;
 }
-
-//void Tower::followTheEnemy(const Entity& enemy, const sf::RenderWindow& window)
-//{
-//	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
-//	sf::Vector2f towerPosition(sprite.getPosition());
-//
-//	sf::Vector2f distanceToCursor = mousePosition - towerPosition;
-//	float angleInRadians = std::atan2(distanceToCursor.y, distanceToCursor.x);
-//	sf::Angle angle(sf::radians(angleInRadians));
-//	if (inRadius(mousePosition))
-//	{
-//		sprite.setRotation(angle);
-//	}
-//}
 
 bool Tower::intersects(const sf::FloatRect& rect) const
 {

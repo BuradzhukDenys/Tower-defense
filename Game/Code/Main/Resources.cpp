@@ -2,11 +2,13 @@
 
 ResourceManager<sf::Texture, Resources::Texture> Resources::textures;
 ResourceManager<sf::Font, Resources::Font> Resources::fonts;
+ResourceManager<sf::SoundBuffer, Resources::Sound> Resources::sounds;
 
 void Resources::Initialize()
 {
 	InitializeTextures();
 	InitializeFonts();
+	InitializeSounds();
 }
 
 void Resources::InitializeTextures()
@@ -20,4 +22,9 @@ void Resources::InitializeTextures()
 void Resources::InitializeFonts()  
 {  
    fonts.Load(Font::BasicFont, "Assets/Fonts/arial.ttf");
+}
+
+void Resources::InitializeSounds()
+{
+	sounds.Load(Sound::NotEnoughMoney, "Assets/Sounds/NotEnoughMoneySound.mp3");
 }

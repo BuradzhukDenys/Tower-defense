@@ -12,9 +12,9 @@ Entity::Entity(Resources::Texture textureID, const int framesCount)
 
 Entity::~Entity() {}
 
-const sf::Vector2f& Entity::getPosition() const
+sf::Vector2f Entity::getPosition() const
 {
-	return this->sprite.getPosition();
+	return sprite.getPosition();
 }
 
 void Entity::setPosition(const sf::Vector2f& position)
@@ -22,7 +22,7 @@ void Entity::setPosition(const sf::Vector2f& position)
 	sprite.setPosition(position);
 }
 
-const sf::Angle& Entity::getRotation() const
+sf::Angle Entity::getRotation() const
 {
 	return sprite.getRotation();
 }
@@ -37,7 +37,7 @@ const sf::Sprite& Entity::getSprite() const
 	return sprite;
 }
 
-const sf::Vector2f& Entity::getSize() const
+sf::Vector2f Entity::getSize() const
 {
 	return sprite.getGlobalBounds().size;
 }

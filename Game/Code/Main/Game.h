@@ -31,14 +31,16 @@ private:
 
 	Map map;
 
-	std::vector<std::unique_ptr<Tower>> towers;
+	std::list<std::unique_ptr<Tower>> towers;
 	std::map<Interface::InterfaceType, std::unique_ptr<Interface>> interface;
-	std::vector<std::unique_ptr<Enemy>> enemies;
+	std::list<std::unique_ptr<Enemy>> enemies;
+	std::list<std::unique_ptr<sf::Sound>> sounds;
 	std::unique_ptr<Tower> pickableTower = nullptr;
 
 	void checkSelectedTower();
 	void updatePickableTower();
 	void checkCanPlace();
+	void placeTower();
 	void addInterfaceContainer(const Interface::InterfaceType& interfaceType,
 		const sf::Vector2f& containerSize,
 		const sf::Vector2f& containerPosition,

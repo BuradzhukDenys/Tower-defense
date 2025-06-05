@@ -12,7 +12,7 @@ public:
 	Tower(Resources::Texture textureID, const sf::Vector2f& position, const int price,
 		const float damage, const float attackSpeed, const float attackRange, const int framesCount = 1);
 
-	bool followTheEnemy(const Entity& enemy);
+	void followTheEnemy(const std::list<std::unique_ptr<Enemy>>& enemies);
 	bool intersects(const sf::FloatRect& rect) const;
 	bool intersects(const Tower& other) const;
 	bool intersects(const sf::Vector2f& point) const;

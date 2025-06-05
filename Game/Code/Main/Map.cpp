@@ -113,7 +113,7 @@ void Map::updateTurnEnemy(Enemy& enemy)
 	}
 }
 
-const sf::Vector2f& Map::getStartMap() const
+sf::Vector2f Map::getStartMap() const
 {
 	for (int y = 0; y < MAP_HEIGHT; ++y)
 	{
@@ -130,7 +130,7 @@ const sf::Vector2f& Map::getStartMap() const
 	}
 }
 
-const sf::Vector2f& Map::getEndMap() const
+sf::Vector2f Map::getEndMap() const
 {
 	for (int y = 0; y < MAP_HEIGHT; ++y)
 	{

@@ -16,13 +16,19 @@ public:
 
     const Direction& getDirection() const;
     void setDirection(const Direction& direction);
+    void takeDamage(const float damage);
+    int getMoney();
+    bool isAlive();
 
-    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
+    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies) override;
 protected:
     Direction direction;
 private:
+    bool enemyIsAlive = true;
     int money;
     int healthPoints;
     float moveSpeed;
+    sf::RectangleShape healthBar;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 

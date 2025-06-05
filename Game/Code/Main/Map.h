@@ -31,8 +31,8 @@ public:
 	Map(const sf::Vector2u& size, const int tilesCount = BASE_TILE_NUMBER);
 	bool canPlaceTower(const Tower& tower);
 	void updateTurnEnemy(Enemy& enemy);
-	const sf::Vector2f& getStartMap() const;
-	const sf::Vector2f& getEndMap() const;
+	sf::Vector2f getStartMap() const;
+	sf::Vector2f getEndMap() const;
 	const float getMapWidth() const;
 	const float getMapHeight() const;
 private:

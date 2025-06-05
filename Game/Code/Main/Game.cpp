@@ -99,6 +99,26 @@ void Game::checkCanPlace()
 	}
 }
 
+void Game::placeTower()
+{
+	if (canPlaceTower)
+	{
+		if (Interface::getMoney() >= Ballista::getPrice() &&
+			Interface::getSelectedTower() == Interface::TowerType::Ballista)
+		{
+			towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
+			Interface::substractMoney(Ballista::getPrice());
+		}
+		else
+		{
+			auto soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::NotEnoughMoney));
+			soundPtr->play();
+
+			sounds.emplace_back(std::move(soundPtr));
+		}
+	}
+}
+
 void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, const sf::Vector2f& containerSize, const sf::Vector2f& containerPosition, const sf::Color& containerColor)
 {
 	interface.emplace(interfaceType,
@@ -123,7 +143,7 @@ void Game::initializeInterface()
 	);
 
 	auto it = interface.find(Interface::InterfaceType::SelectTowerInterface);
-	if (it != interface.end());
+	if (it != interface.end())
 	{
 		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
 		{
@@ -258,7 +278,6 @@ void Game::Events()
 			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
 			{
 				Interface::addMoney(25);
-				towers[0]->upgradeAttackSpeed(1, Tower::UpgradeType::additive);
 			}
 			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus)
 			{
@@ -291,21 +310,15 @@ void Game::Events()
 					}
 				}
 
-				if (canPlaceTower)
-				{
-					if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
-					{
-						towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
-					}
-				}
+				placeTower();
 			}
 			else if (mouseReleased->button == sf::Mouse::Button::Right)
 			{
-				for (auto it = towers.begin(); it != towers.end(); ++it)
+				for (const auto& tower : towers)
 				{
-					if ((*it)->intersects(mousePosition) && !pickableTower)
+					if (tower->intersects(mousePosition) && !pickableTower)
 					{
-						towers.erase(it);
+						towers.remove(tower);
 						break;
 					}
 				}
@@ -327,6 +340,12 @@ void Game::Update(sf::Time deltaTime)
 		{
 			enemy->Update(deltaTime, window, enemies);
 			map.updateTurnEnemy(*enemy);
+			if (!enemy->isAlive())
+			{
+				Interface::addMoney(enemy->getMoney());
+				enemies.remove(enemy);
+				break;
+			}
 		}
 	}
 	checkEnemyReachedEnd();
@@ -341,6 +360,13 @@ void Game::Update(sf::Time deltaTime)
 	{
 		interfaceComponent.second->Update(deltaTime, window);
 	}
+
+	sounds.remove_if(
+		[](const std::unique_ptr<sf::Sound>& sound)
+		{
+			return sound->getStatus() != sf::Sound::Status::Playing;
+		}
+	);
 }
 
 void Game::Render()
