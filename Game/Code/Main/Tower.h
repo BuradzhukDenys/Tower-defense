@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Projectile.h"
 #include "InterfaceContainer.h"
+#include "Enemy.h"
 
 class Tower : public Entity
 {
@@ -11,7 +12,7 @@ public:
 	Tower(Resources::Texture textureID, const sf::Vector2f& position, const int price,
 		const float damage, const float attackSpeed, const float attackRange, const int framesCount = 1);
 
-	void followTheEnemy(const Entity& enemy, const sf::RenderWindow& window);
+	bool followTheEnemy(const Entity& enemy);
 	bool intersects(const sf::FloatRect& rect) const;
 	bool intersects(const Tower& other) const;
 	bool intersects(const sf::Vector2f& point) const;

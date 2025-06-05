@@ -12,7 +12,7 @@ Projectile::Projectile(Resources::Texture textureID, Tower& tower, float moveSpe
 	moveDirection = sf::Vector2f(std::cos(angleInRadians), std::sin(angleInRadians));
 }
 
-void Projectile::Update(sf::Time deltaTime, const sf::RenderWindow& window)
+void Projectile::Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies)
 {
 	sprite.move(moveDirection * moveSpeed * deltaTime.asSeconds());
 

@@ -19,7 +19,7 @@ void Enemy::setDirection(const Direction& direction)
 	this->direction = direction;
 }
 
-void Enemy::Update(sf::Time deltaTime, const sf::RenderWindow& window)
+void Enemy::Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies)
 {
 	switch (direction)
 	{

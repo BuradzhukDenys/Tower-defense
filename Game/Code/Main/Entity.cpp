@@ -14,7 +14,7 @@ Entity::~Entity() {}
 
 const sf::Vector2f& Entity::getPosition() const
 {
-	return sprite.getPosition();
+	return this->sprite.getPosition();
 }
 
 void Entity::setPosition(const sf::Vector2f& position)

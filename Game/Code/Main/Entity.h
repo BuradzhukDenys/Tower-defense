@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include "Resources.h"
 
+class Enemy;
+
 class Entity : public sf::Transformable, public sf::Drawable
 {
 public:
@@ -15,7 +17,7 @@ public:
 	void setRotation(const sf::Angle& angle);
 	const sf::Sprite& getSprite() const;
 	const sf::Vector2f& getSize() const;
-	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
+	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies) = 0;
 protected:
 	sf::Sprite sprite;
 	sf::Vector2i frameSize;

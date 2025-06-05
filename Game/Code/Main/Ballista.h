@@ -7,7 +7,7 @@ class Ballista :
 public:
     Ballista(Resources::Texture textureID, const sf::Vector2f& position, const int framesCount = BASE_BALLISTA_MAX_FRAMES);
 
-    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) override;
+    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
     virtual void playAnimation(sf::Time deltaTime) override;
     virtual void shoot() override;
 private:

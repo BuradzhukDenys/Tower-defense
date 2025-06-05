@@ -17,7 +17,7 @@ public:
     const Direction& getDirection() const;
     void setDirection(const Direction& direction);
 
-    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) override;
+    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::vector<std::unique_ptr<Enemy>>& enemies) override;
 protected:
     Direction direction;
 private:

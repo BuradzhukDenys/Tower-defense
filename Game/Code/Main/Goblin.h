@@ -9,7 +9,7 @@ public:
 private:
     static constexpr int GOBLIN_MONEY = 85;
     static constexpr int GOBLIN_HEALTH_POINTS = 55;
-    static constexpr float GOBLIN_MOVE_SPEED = 500.f;// - test
+    static constexpr float GOBLIN_MOVE_SPEED = 40.f;// - test
     //static constexpr float GOBLIN_MOVE_SPEED = 17.f; - default
 };
 

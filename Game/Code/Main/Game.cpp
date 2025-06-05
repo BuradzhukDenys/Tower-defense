@@ -325,7 +325,7 @@ void Game::Update(sf::Time deltaTime)
 	{
 		if (enemy)
 		{
-			enemy->Update(deltaTime, window);
+			enemy->Update(deltaTime, window, enemies);
 			map.updateTurnEnemy(*enemy);
 		}
 	}
@@ -333,7 +333,7 @@ void Game::Update(sf::Time deltaTime)
 
 	for (auto& tower : towers)
 	{
-		tower->Update(deltaTime, window);
+		tower->Update(deltaTime, window, enemies);
 	}
 
 	updateGameInfo();
