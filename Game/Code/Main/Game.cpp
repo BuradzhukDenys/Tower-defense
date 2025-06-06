@@ -24,7 +24,7 @@ void Game::Run()
 	while (window.isOpen())
 	{
 		Events();
-		if (Interface::getCurrentState() == Interface::States::Game)
+		if (GameState::getState() != GameState::State::Pause)
 		{
 			Update(deltaTime.restart());
 		}
@@ -148,43 +148,36 @@ void Game::initializeInterface()
 		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
 		{
 			float containerCenterX = (container->getSize().x / 2.f) + container->getPosition().x;
-			/*container->addContainerText("Towers", sf::Vector2f(containerCenterX, container->getPosition().y));
-			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Ballista\n500$", Button::ButtonType::Ballista);
-			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Bomber", Button::ButtonType::Bomber);
-			container->addButton(sf::Vector2f(0.f, 150.f), sf::Vector2f(containerCenterX, container->getPosition().y), sf::Color::Blue, "Wizzard", Button::ButtonType::Wizzard);
-			container->addButton(sf::Vector2f(0.f, 180.f), sf::Vector2f(containerCenterX, container->getSize().y - 250.f), sf::Color(0, 124, 0), "Play", Button::ButtonType::Play);*/
-			std::vector<sf::Vector2f> buttonSizes = {
-				sf::Vector2f(0, 150.f),
-				sf::Vector2f(0, 150.f),
-				sf::Vector2f(0, 150.f)
-			};
 
-			std::vector<sf::Vector2f> buttonPositions = {
-				sf::Vector2f(containerCenterX, container->getPosition().y),
-				sf::Vector2f(containerCenterX, container->getPosition().y),
-				sf::Vector2f(containerCenterX, container->getPosition().y)
-			};
-
-			std::vector<sf::Color> buttonColors = {
-				sf::Color::Blue,
-				sf::Color::Blue,
-				sf::Color::Blue
-			};
-
-			std::vector<std::string> buttonTexts = {
-				"Ballista",
-				"Bomber",
-				"Wizzard"
-			};
-
-			std::vector<Button::ButtonType> buttonTypes = {
-				Button::ButtonType::Ballista,
-				Button::ButtonType::Bomber,
-				Button::ButtonType::Wizzard
-			};
-
-			container->addContainerText("Towers", sf::Vector2f(containerCenterX, container->getPosition().y));
-			container->addButtons(3, buttonSizes, buttonPositions, buttonColors, buttonTexts, buttonTypes);
+			container->addContainerText(std::string("Towers"), sf::Vector2f(containerCenterX, container->getPosition().y));
+			container->addButtons(
+				4,//Кількість кнопок
+				std::vector<sf::Vector2f>{//Розміри кнопок
+					sf::Vector2f(0, 150.f),
+					sf::Vector2f(0, 150.f),
+					sf::Vector2f(0, 150.f),
+					sf::Vector2f(0, 165.f)
+				},
+				std::vector<sf::Vector2f>{//Позиції кнопок
+					sf::Vector2f(containerCenterX, container->getPosition().y),
+					sf::Vector2f(containerCenterX, container->getPosition().y),
+					sf::Vector2f(containerCenterX, container->getPosition().y),
+					sf::Vector2f(containerCenterX, container->getPosition().y)
+				},
+				std::vector<sf::Color>{sf::Color::Blue, sf::Color::Blue, sf::Color::Blue, sf::Color(0, 130, 0)/*Зелений колір*/},//Кольори кнопок
+				std::vector<std::string>{//Текст кнопок
+					"Ballista\n" + std::to_string(Ballista::getPrice()) + "$",
+					"Bomber\n" + std::to_string(Ballista::getPrice()) + "$",
+					"Wizzard\n" + std::to_string(Ballista::getPrice()) + "$",
+					"Play"
+				},
+				std::vector<Button::ButtonType>{//Типи кнопок
+					Button::ButtonType::Ballista,
+					Button::ButtonType::Bomber,
+					Button::ButtonType::Wizzard,
+					Button::ButtonType::Play
+				}
+			);
 		}
 	}
 }
@@ -259,9 +252,9 @@ void Game::Events()
 			{
 				Interface::nextRound();
 
-				if (Interface::getCurrentState() == Interface::States::Game)
+				if (GameState::getState() == GameState::State::Game)
 				{
-					Interface::setState(Interface::States::Pause);
+					GameState::setState(GameState::State::Pause);
 					addInterfaceContainer(Interface::InterfaceType::PauseInterface,
 						sf::Vector2f(windowSize.size),
 						sf::Vector2f(0, 0),
@@ -271,13 +264,14 @@ void Game::Events()
 				else
 				{
 					deleteInterfaceContainer(Interface::InterfaceType::PauseInterface);
-					Interface::setState(Interface::States::Game);
+					GameState::setState(GameState::State::Game);
 				}
 			}
 
 			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
 			{
 				Interface::addMoney(25);
+				std::cout << GameState::getState();
 			}
 			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus)
 			{

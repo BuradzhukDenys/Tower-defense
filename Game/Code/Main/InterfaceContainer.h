@@ -1,6 +1,7 @@
 #pragma once
 #include "Button.h"
 #include "Interface.h"
+#include "GameState.h"
 #include <SFML/System/Vector2.hpp>
 
 class Tower;
@@ -16,7 +17,9 @@ class InterfaceContainer :
 public:
     InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor);
     void addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const std::vector<sf::Vector2f>& positions, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes);
+    void addButton(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonText, const Button::ButtonType& buttonType);
     void addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize = BASE_CONTAINER_FONT_SIZE);
+    float getButtonLowerBound(const Button::ButtonType& buttonType);
 
     const sf::RectangleShape& getGUI() const;
     const sf::Vector2f& getSize() const;

@@ -23,17 +23,13 @@ public:
 		None
 	};
 
-	enum class States
-	{
-		Game,
-		Pause
-	};
-
 	enum class InterfaceType
 	{
 		SelectTowerInterface,
 		UpgradeTowerInterface,
-		PauseInterface
+		PauseInterface,
+		LoserInterface,
+		WiinerInterface
 	};
 
 	static const sf::Color PAUSE_BACKGROUND_COLOR;
@@ -42,8 +38,6 @@ public:
 
 	static TowerType getSelectedTower();
 	static void setSelectedTower(TowerType towerType);
-	static States getCurrentState();
-	static void setState(const States& state);
 
 	static int getCurrentRound();
 	static int getMoney();
@@ -58,7 +52,6 @@ public:
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
 private:
 	static constexpr int MAX_ROUNDS = 25;
-	static States currentState;
 	static TowerType selectedTower;
 	static int currentRound;
 	static int money;

@@ -34,6 +34,7 @@
     <ClCompile Include="Game\Code\Main\Enemy.cpp" />
     <ClCompile Include="Game\Code\Main\Entity.cpp" />
     <ClCompile Include="Game\Code\Main\Game.cpp" />
+    <ClCompile Include="Game\Code\Main\GameState.cpp" />
     <ClCompile Include="Game\Code\Main\main.cpp" />
     <ClCompile Include="Game\Code\Main\Map.cpp" />
     <ClCompile Include="Game\Code\Main\Tower.cpp" />
@@ -44,6 +45,7 @@
     <ClCompile Include="Game\Code\Main\Goblin.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Code\Main\GameState.h" />
     <ClInclude Include="Game\Code\Main\Button.h" />
     <ClInclude Include="Game\Code\Main\Ballista.h" />
     <ClInclude Include="Game\Code\Main\Enemy.h" />

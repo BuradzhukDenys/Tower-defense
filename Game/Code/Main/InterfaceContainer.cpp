@@ -24,19 +24,38 @@ void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf
 
 		if (!this->containerTexts.empty() && buttons.empty())
 		{
+			float lastTextLowerBound = 0;
 			for (const auto& text : containerTexts)
 			{
-				ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + text->getPosition().y + text->getGlobalBounds().size.y));
+				if (text->getPosition().y + text->getGlobalBounds().size.y > lastTextLowerBound)
+				{
+					lastTextLowerBound = text->getPosition().y + text->getGlobalBounds().size.y;
+				}
 			}
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + lastTextLowerBound));
 		}
 
 		if (!this->buttons.empty())
 		{
 			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + buttons[i - 1]->getPosition().y + buttons[i - 1]->getSize().y));
 		}
-		
+
 		buttons.emplace_back(std::move(ptrButton));
 	}
+}
+
+
+void InterfaceContainer::addButton(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonText, const Button::ButtonType& buttonType)
+{
+	auto ptrButton = std::make_unique<Button>(
+		sf::Vector2f(GUI.getSize().x * 0.7f, size.y),
+		sf::Vector2f(position.x, position.y + MARGIN_BETWEEN_COMPONENTS),
+		color,
+		buttonText,
+		buttonType
+	);
+
+	buttons.emplace_back(std::move(ptrButton));
 }
 
 void InterfaceContainer::addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize)
@@ -54,6 +73,17 @@ void InterfaceContainer::addContainerText(const std::string& containerString, co
 	ptrText->setPosition(sf::Vector2f(positionInGUI.x, positionInGUI.y + ptrText->getOrigin().y + MARGIN_BETWEEN_COMPONENTS));
 
 	containerTexts.emplace_back(std::move(ptrText));
+}
+
+float InterfaceContainer::getButtonLowerBound(const Button::ButtonType& buttonType)
+{
+	for (const auto& button : buttons)
+	{
+		if (button->getButtonType() == buttonType)
+		{
+			return button->getPosition().y + button->getSize().y;
+		}
+	}
 }
 
 const sf::RectangleShape& InterfaceContainer::getGUI() const
@@ -101,6 +131,9 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				break;
 			case Button::ButtonType::Wizzard:
 				Interface::setSelectedTower(Interface::TowerType::Wizzard);
+				break;
+			case Button::ButtonType::Play:
+				GameState::setState(GameState::State::RoundPlay);
 				break;
 			default:
 				break;

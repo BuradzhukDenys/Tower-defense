@@ -5,7 +5,6 @@ int Interface::currentRound = 1;
 int Interface::money = 600;
 int Interface::lives = 30;
 Interface::TowerType Interface::selectedTower = Interface::TowerType::None;
-Interface::States Interface::currentState = Interface::States::Game;
 const sf::Color Interface::PAUSE_BACKGROUND_COLOR = sf::Color(0, 0, 0, 50);
 
 Interface::~Interface() {}
@@ -57,16 +56,6 @@ void Interface::lostlives()
 	{
 		lives--;
 	}
-}
-
-Interface::States Interface::getCurrentState()
-{
-	return currentState;
-}
-
-void Interface::setState(const States& state)
-{
-	currentState = state;
 }
 
 Interface::TowerType Interface::getSelectedTower()

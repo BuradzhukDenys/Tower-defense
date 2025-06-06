@@ -4,6 +4,7 @@
 #include "Interface.h"
 #include "Map.h"
 #include "Enemy.h"
+#include "GameState.h"
 #include <map>
 
 const sf::String controlText = L"Control\nLMB - Поставити башню\nRMB - видалити башню";

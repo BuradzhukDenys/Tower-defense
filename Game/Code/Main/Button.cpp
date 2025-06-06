@@ -3,6 +3,7 @@
 #include "Resources.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Rendertarget.hpp>
+#include "GameState.h"
 
 Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonTextString, const ButtonType& buttonType)
 	: buttonShape(size), buttonText(Resources::fonts.Get(Resources::Font::BasicFont)), buttonType(buttonType)
@@ -84,8 +85,13 @@ void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
 	}
+	else if (GameState::getState() == GameState::State::RoundPlay && buttonType == Button::ButtonType::Play)
+	{
+		buttonShape.setFillColor(sf::Color(100, 100, 100));
+	}
 	else
 	{
+		buttonShape.setFillColor(buttonShape.getFillColor());
 		buttonShape.setOutlineThickness(0.f);
 		buttonShape.setOutlineColor(sf::Color::Transparent);
 	}

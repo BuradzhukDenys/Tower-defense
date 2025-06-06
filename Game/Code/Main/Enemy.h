@@ -20,6 +20,7 @@ public:
     int getMoney();
     bool isAlive();
 
+    void updateHealthBar();
     virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies) override;
 protected:
     Direction direction;
@@ -27,8 +28,10 @@ private:
     bool enemyIsAlive = true;
     int money;
     int healthPoints;
+    int maxHealthPoints;
     float moveSpeed;
     sf::RectangleShape healthBar;
+    sf::RectangleShape healthBarBackground;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
