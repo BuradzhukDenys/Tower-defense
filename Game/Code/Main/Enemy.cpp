@@ -56,28 +56,43 @@ void Enemy::updateHealthBar()
 	healthBar.setSize(sf::Vector2f(sprite.getLocalBounds().size.x * 1.4f * healthPercent, 4.f));
 }
 
+void Enemy::playAnimation(sf::Time deltaTime)
+{
+	if (distanceForLastFrame >= distancePerFrame)
+	{
+		distanceForLastFrame = 0.f;
+		currentFrame = (currentFrame + 1) % framesCount;
+		sprite.setTextureRect(sf::IntRect(
+			{ frameSize.x * currentFrame, 0 },
+			{ frameSize.x, frameSize.y }
+		));
+	}
+}
+
 void Enemy::Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies)
 {
+	sf::Vector2f moveOffset;
 	switch (direction)
 	{
 	case Enemy::Direction::Up:
-		sprite.move(sf::Vector2f(0, -moveSpeed * deltaTime.asSeconds()));
-		healthBar.move(sf::Vector2f(0, -moveSpeed * deltaTime.asSeconds()));
-		healthBarBackground.move(sf::Vector2f(0, -moveSpeed * deltaTime.asSeconds()));
+		moveOffset.y = -moveSpeed * deltaTime.asSeconds();
 		break;
 	case Enemy::Direction::Down:
-		sprite.move(sf::Vector2f(0, moveSpeed * deltaTime.asSeconds()));
-		healthBar.move(sf::Vector2f(0, moveSpeed * deltaTime.asSeconds()));
-		healthBarBackground.move(sf::Vector2f(0, moveSpeed * deltaTime.asSeconds()));
+		moveOffset.y = moveSpeed * deltaTime.asSeconds();
 		break;
 	case Enemy::Direction::Right:
-		sprite.move(sf::Vector2f(moveSpeed * deltaTime.asSeconds(), 0));
-		healthBar.move(sf::Vector2f(moveSpeed * deltaTime.asSeconds(), 0));
-		healthBarBackground.move(sf::Vector2f(moveSpeed * deltaTime.asSeconds(), 0));
+		moveOffset.x = moveSpeed * deltaTime.asSeconds();
 		break;
 	default:
 		break;
 	}
+
+	sprite.move(moveOffset);
+	healthBar.move(moveOffset);
+	healthBarBackground.move(moveOffset);
+
+	distanceForLastFrame += std::sqrt(moveOffset.x * moveOffset.x + moveOffset.y * moveOffset.y);
+	playAnimation(deltaTime);
 }
 
 void Enemy::draw(sf::RenderTarget& target, sf::RenderStates states) const

@@ -9,7 +9,8 @@ public:
 		Game,
 		RoundPlay,
 		Win,
-		Loss
+		Loss,
+		Exit
 	};
 
 	static State& getState();

@@ -70,7 +70,12 @@ void Button::setScale(const sf::Vector2f& scale)
 
 void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)
 {
-	if (Interface::getSelectedTower() == Interface::TowerType::Ballista && buttonType == Button::ButtonType::Ballista)
+	if (isClicked(sf::Vector2f(sf::Mouse::getPosition(window))))
+	{
+		buttonShape.setOutlineThickness(-5.f);
+		buttonShape.setOutlineColor(sf::Color::Red);
+	}
+	else if (Interface::getSelectedTower() == Interface::TowerType::Ballista && buttonType == Button::ButtonType::Ballista)
 	{
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);

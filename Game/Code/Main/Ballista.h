@@ -9,7 +9,6 @@ public:
 
     static int getPrice();
     virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies) override;
-    virtual void playAnimation(sf::Time deltaTime) override;
     virtual void shoot() override;
 private:
     static constexpr int BALLISTA_PRICE = 300;
@@ -18,11 +17,7 @@ private:
     static constexpr float BALLISTA_ATTACK_RANGE = 200.f;
     static constexpr float BALLISTA_PROJECTILE_SPEED = 300.f;
     static constexpr float BALLISTA_PROJECTILE_DURATION = 5.f;
-    int framesCount;
-    int currentFrame;
-    float timeForLastAnimationPlay;
-    float animationSpeed = (1.f / attackSpeed) / (framesCount + 1);
-    bool isAnimationPlaying = false;
+    static constexpr int BASE_BALLISTA_MAX_FRAMES = 5;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 

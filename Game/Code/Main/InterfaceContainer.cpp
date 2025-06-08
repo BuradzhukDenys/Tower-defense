@@ -10,13 +10,13 @@ InterfaceContainer::InterfaceContainer(const sf::Vector2f& size, const sf::Vecto
 	GUI.setPosition(position);
 }
 
-void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const std::vector<sf::Vector2f>& positions, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes)
+void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const sf::Vector2f& firstButtonPosition, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes)
 {
 	for (size_t i = 0; i < buttonsCount; i++)
 	{
 		auto ptrButton = std::make_unique<Button>(
-			sf::Vector2f(GUI.getSize().x * 0.7f, sizes[i].y),
-			sf::Vector2f(positions[i].x, positions[i].y + MARGIN_BETWEEN_COMPONENTS),
+			sf::Vector2f(sizes[i].x, sizes[i].y),
+			sf::Vector2f(firstButtonPosition.x, firstButtonPosition.y + MARGIN_BETWEEN_COMPONENTS),
 			colors[i],
 			texts[i],
 			buttonTypes[i]
@@ -32,31 +32,18 @@ void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf
 					lastTextLowerBound = text->getPosition().y + text->getGlobalBounds().size.y;
 				}
 			}
-			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + lastTextLowerBound));
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, lastTextLowerBound + MARGIN_BETWEEN_COMPONENTS));
 		}
 
 		if (!this->buttons.empty())
 		{
-			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, ptrButton->getPosition().y + buttons[i - 1]->getPosition().y + buttons[i - 1]->getSize().y));
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, (buttons[i - 1]->getPosition().y + buttons[i - 1]->getSize().y) + MARGIN_BETWEEN_COMPONENTS));
 		}
 
 		buttons.emplace_back(std::move(ptrButton));
 	}
 }
 
-
-void InterfaceContainer::addButton(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonText, const Button::ButtonType& buttonType)
-{
-	auto ptrButton = std::make_unique<Button>(
-		sf::Vector2f(GUI.getSize().x * 0.7f, size.y),
-		sf::Vector2f(position.x, position.y + MARGIN_BETWEEN_COMPONENTS),
-		color,
-		buttonText,
-		buttonType
-	);
-
-	buttons.emplace_back(std::move(ptrButton));
-}
 
 void InterfaceContainer::addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize)
 {
@@ -86,22 +73,22 @@ float InterfaceContainer::getButtonLowerBound(const Button::ButtonType& buttonTy
 	}
 }
 
-const sf::RectangleShape& InterfaceContainer::getGUI() const
+sf::RectangleShape InterfaceContainer::getGUI() const
 {
 	return GUI;
 }
 
-const sf::Vector2f& InterfaceContainer::getSize() const
+sf::Vector2f InterfaceContainer::getSize() const
 {
 	return GUI.getSize();
 }
 
-const sf::Vector2f& InterfaceContainer::getPosition() const
+sf::Vector2f InterfaceContainer::getPosition() const
 {
 	return GUI.getPosition();
 }
 
-const sf::Vector2f& InterfaceContainer::getContainerTextSize(const std::string& text) const
+sf::Vector2f InterfaceContainer::getContainerTextPositionSize(const std::string& text) const
 {
 	if (!containerTexts.empty())
 	{
@@ -134,6 +121,12 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				break;
 			case Button::ButtonType::Play:
 				GameState::setState(GameState::State::RoundPlay);
+				break;
+			case Button::ButtonType::Resume:
+				GameState::setState(GameState::State::Game);
+				break;
+			case Button::ButtonType::Exit:
+				GameState::setState(GameState::State::Exit);
 				break;
 			default:
 				break;

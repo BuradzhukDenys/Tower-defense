@@ -16,15 +16,14 @@ class InterfaceContainer :
 {
 public:
     InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor);
-    void addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const std::vector<sf::Vector2f>& positions, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes);
-    void addButton(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonText, const Button::ButtonType& buttonType);
+    void addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const sf::Vector2f& firstButtonPosition, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes);
     void addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize = BASE_CONTAINER_FONT_SIZE);
     float getButtonLowerBound(const Button::ButtonType& buttonType);
 
-    const sf::RectangleShape& getGUI() const;
-    const sf::Vector2f& getSize() const;
-    const sf::Vector2f& getPosition() const;
-    const sf::Vector2f& getContainerTextSize(const std::string& text) const;
+    sf::RectangleShape getGUI() const;
+    sf::Vector2f getSize() const;
+    sf::Vector2f getPosition() const;
+    sf::Vector2f getContainerTextPositionSize(const std::string& text) const;
 
     void handleClick(const sf::Vector2f& mousePos);
     virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) override;

@@ -15,7 +15,30 @@ Tower::Tower(Resources::Texture textureID, const sf::Vector2f& position, const i
 	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);
 }
 
-void Tower::followTheEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
+void Tower::playAnimation(sf::Time deltaTime)
+{
+	timeForLastAnimationPlay += deltaTime.asSeconds();
+	if (timeForLastAnimationPlay >= animationSpeed)
+	{
+		currentFrame++;
+		timeForLastAnimationPlay = 0.f;
+
+		if (currentFrame < framesCount)
+		{
+			sprite.setTextureRect(sf::IntRect(
+				{ currentFrame * frameSize.x, 0 },
+				frameSize));
+		}
+		else
+		{
+			currentFrame = 0;
+			isAnimationPlaying = false;
+			sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
+		}
+	}
+}
+
+void Tower::followTheEnemyAndShoot(const std::list<std::unique_ptr<Enemy>>& enemies)
 {
 	for (const auto& enemy : enemies)
 	{

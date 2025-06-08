@@ -2,8 +2,7 @@
 #include <iostream>
 
 Ballista::Ballista(Resources::Texture textureID, const sf::Vector2f& position, const int framesCount)
-	: Tower(textureID, position, BALLISTA_PRICE, BALLISTA_DAMAGE, BALLISTA_ATTACK_SPEED, BALLISTA_ATTACK_RANGE, framesCount),
-	framesCount(framesCount), currentFrame(0), timeForLastAnimationPlay(0)
+	: Tower(textureID, position, BALLISTA_PRICE, BALLISTA_DAMAGE, BALLISTA_ATTACK_SPEED, BALLISTA_ATTACK_RANGE, framesCount)
 {
 	sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 	sprite.setOrigin(sf::Vector2f(sprite.getTextureRect().size / 2));
@@ -38,7 +37,7 @@ void Ballista::Update(sf::Time deltaTime, const sf::RenderWindow& window, const 
 		}
 	}
 
-	followTheEnemy(enemies);
+	followTheEnemyAndShoot(enemies);
 
 	if (isAnimationPlaying)
 	{
@@ -46,29 +45,6 @@ void Ballista::Update(sf::Time deltaTime, const sf::RenderWindow& window, const 
 	}
 
 	isActive = intersects(mousePosition);
-}
-
-void Ballista::playAnimation(sf::Time deltaTime)
-{
-	timeForLastAnimationPlay += deltaTime.asSeconds();
-	if (timeForLastAnimationPlay >= animationSpeed)
-	{
-		currentFrame++;
-		timeForLastAnimationPlay = 0.f;
-
-		if (currentFrame < framesCount)
-		{
-			sprite.setTextureRect(sf::IntRect(
-				{ currentFrame * frameSize.x, 0 },
-				frameSize));
-		}
-		else
-		{
-			currentFrame = 0;
-			isAnimationPlaying = false;
-			sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
-		}
-	}
 }
 
 void Ballista::shoot()

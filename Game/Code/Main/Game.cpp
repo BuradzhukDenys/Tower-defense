@@ -24,10 +24,7 @@ void Game::Run()
 	while (window.isOpen())
 	{
 		Events();
-		if (GameState::getState() != GameState::State::Pause)
-		{
-			Update(deltaTime.restart());
-		}
+		Update(deltaTime.restart());
 		Render();
 	}
 }
@@ -121,12 +118,24 @@ void Game::placeTower()
 
 void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, const sf::Vector2f& containerSize, const sf::Vector2f& containerPosition, const sf::Color& containerColor)
 {
-	interface.emplace(interfaceType,
-		std::make_unique<InterfaceContainer>(
+	interface[interfaceType] = std::make_unique<InterfaceContainer>(
 			containerSize,
 			containerPosition,
 			containerColor
-		));
+		);
+}
+
+InterfaceContainer& Game::getInterfaceContainer(const Interface::InterfaceType& interfaceType)
+{
+	auto it = interface.find(interfaceType);
+	if (it != interface.end())
+	{
+		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
+		{
+			return *container;
+		}
+	}
+	throw std::runtime_error("Not found interface container");
 }
 
 void Game::deleteInterfaceContainer(const Interface::InterfaceType& interfaceType)
@@ -142,58 +151,41 @@ void Game::initializeInterface()
 		sf::Color(153, 76, 0)
 	);
 
-	auto it = interface.find(Interface::InterfaceType::SelectTowerInterface);
-	if (it != interface.end())
-	{
-		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
-		{
-			float containerCenterX = (container->getSize().x / 2.f) + container->getPosition().x;
+	auto& container = getInterfaceContainer(Interface::InterfaceType::SelectTowerInterface);
+	float containerCenterX = (container.getSize().x / 2.f) + container.getPosition().x;
 
-			container->addContainerText(std::string("Towers"), sf::Vector2f(containerCenterX, container->getPosition().y));
-			container->addButtons(
-				4,//Кількість кнопок
-				std::vector<sf::Vector2f>{//Розміри кнопок
-					sf::Vector2f(0, 150.f),
-					sf::Vector2f(0, 150.f),
-					sf::Vector2f(0, 150.f),
-					sf::Vector2f(0, 165.f)
-				},
-				std::vector<sf::Vector2f>{//Позиції кнопок
-					sf::Vector2f(containerCenterX, container->getPosition().y),
-					sf::Vector2f(containerCenterX, container->getPosition().y),
-					sf::Vector2f(containerCenterX, container->getPosition().y),
-					sf::Vector2f(containerCenterX, container->getPosition().y)
-				},
-				std::vector<sf::Color>{sf::Color::Blue, sf::Color::Blue, sf::Color::Blue, sf::Color(0, 130, 0)/*Зелений колір*/},//Кольори кнопок
-				std::vector<std::string>{//Текст кнопок
-					"Ballista\n" + std::to_string(Ballista::getPrice()) + "$",
-					"Bomber\n" + std::to_string(Ballista::getPrice()) + "$",
-					"Wizzard\n" + std::to_string(Ballista::getPrice()) + "$",
-					"Play"
-				},
-				std::vector<Button::ButtonType>{//Типи кнопок
-					Button::ButtonType::Ballista,
-					Button::ButtonType::Bomber,
-					Button::ButtonType::Wizzard,
-					Button::ButtonType::Play
-				}
-			);
-		}
+	container.addContainerText(std::string("Towers"), sf::Vector2f(containerCenterX, container.getPosition().y));
+	container.addButtons(
+		4,//Кількість кнопок
+		std::vector<sf::Vector2f>{//Розміри кнопок
+		sf::Vector2f(container.getSize().x * 0.7f, 150.f),
+			sf::Vector2f(container.getSize().x * 0.7f, 150.f),
+			sf::Vector2f(container.getSize().x * 0.7f, 150.f),
+			sf::Vector2f(container.getSize().x * 0.7f, 165.f)
+	},
+		sf::Vector2f(containerCenterX, container.getPosition().y),//Позиція першої кнопки
+		std::vector<sf::Color>{sf::Color::Blue, sf::Color::Blue, sf::Color::Blue, sf::Color(0, 130, 0)/*Зелений колір*/},//Кольори кнопок
+		std::vector<std::string>{//Текст кнопок
+		"Ballista\n" + std::to_string(Ballista::getPrice()) + "$",
+			"Bomber\n" + std::to_string(Ballista::getPrice()) + "$",
+			"Wizzard\n" + std::to_string(Ballista::getPrice()) + "$",
+			"Play"
+	},
+		std::vector<Button::ButtonType>{//Типи кнопок
+		Button::ButtonType::Ballista,
+			Button::ButtonType::Bomber,
+			Button::ButtonType::Wizzard,
+			Button::ButtonType::Play
 	}
+	);
 }
 
 void Game::initializeGameInfo()
 {
 	sf::Vector2f textPosition;
 
-	auto it = interface.find(Interface::InterfaceType::SelectTowerInterface);
-	if (it != interface.end())
-	{
-		if (auto* container = dynamic_cast<InterfaceContainer*>(it->second.get()))
-		{
-			textPosition = container->getPosition();
-		}
-	}
+	auto& container = getInterfaceContainer(Interface::InterfaceType::SelectTowerInterface);
+	textPosition = container.getPosition();
 
 	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/" + std::to_string(Interface::getMaxRoudns()));
 	currentRoundText.setCharacterSize(GAME_FONT_SIZE);
@@ -239,33 +231,51 @@ void Game::Events()
 {
 	while (const std::optional event = window.pollEvent())
 	{
-		if (event->is<sf::Event::Closed>()
-			|| (event->is<sf::Event::KeyPressed>()
-				&& event->getIf< sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scan::Escape))
+		//delete
+		if (event->is<sf::Event::Closed>())
 		{
 			window.close();
 		}
 
 		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
+			if (keyReleased->scancode == sf::Keyboard::Scan::Escape)
+			{
+				GameState::setState(GameState::State::Pause);
+				addInterfaceContainer(Interface::InterfaceType::PauseInterface,
+					sf::Vector2f(windowSize.size),
+					sf::Vector2f(0, 0),
+					sf::Color(Interface::PAUSE_BACKGROUND_COLOR)
+				);
+				auto& container = getInterfaceContainer(Interface::InterfaceType::PauseInterface);
+				sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
+
+				container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 142.f));
+				container.addButtons(
+					2,//Кількість кнопок
+					std::vector<sf::Vector2f>{//Розміри кнопок
+					sf::Vector2f(350.f, 80.f),
+						sf::Vector2f(350.f, 80.f)
+				},
+					sf::Vector2f(containerCenter),//Позиція першої кнопки
+					std::vector<sf::Color>{//Кольори кнопок
+					sf::Color::Magenta,
+						sf::Color::Magenta
+				},
+					std::vector<std::string>{//Тексти кнопок
+					"Resume",
+						"Exit"
+				},
+					std::vector<Button::ButtonType>{//Типи кнопок
+					Button::ButtonType::Resume,
+						Button::ButtonType::Exit
+				}
+				);
+			}
+
 			if (keyReleased->scancode == sf::Keyboard::Scancode::Space)
 			{
 				Interface::nextRound();
-
-				if (GameState::getState() == GameState::State::Game)
-				{
-					GameState::setState(GameState::State::Pause);
-					addInterfaceContainer(Interface::InterfaceType::PauseInterface,
-						sf::Vector2f(windowSize.size),
-						sf::Vector2f(0, 0),
-						sf::Color(Interface::PAUSE_BACKGROUND_COLOR)
-					);
-				}
-				else
-				{
-					deleteInterfaceContainer(Interface::InterfaceType::PauseInterface);
-					GameState::setState(GameState::State::Game);
-				}
 			}
 
 			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
@@ -304,6 +314,21 @@ void Game::Events()
 					}
 				}
 
+				switch (GameState::getState())
+				{
+				case GameState::State::Game:
+					if (interface.find(Interface::InterfaceType::PauseInterface) != interface.end())
+					{
+						interface.erase(Interface::InterfaceType::PauseInterface);
+					}
+					break;
+				case GameState::State::Exit:
+					window.close();
+					break;
+				default:
+					break;
+				}
+
 				placeTower();
 			}
 			else if (mouseReleased->button == sf::Mouse::Button::Right)
@@ -325,31 +350,35 @@ void Game::Events()
 
 void Game::Update(sf::Time deltaTime)
 {
-	mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-	updatePickableTower();
-
-	for (const auto& enemy : enemies)
+	if (GameState::getState() != GameState::State::Pause)
 	{
-		if (enemy)
+		updatePickableTower();
+
+		for (const auto& enemy : enemies)
 		{
-			enemy->Update(deltaTime, window, enemies);
-			map.updateTurnEnemy(*enemy);
-			if (!enemy->isAlive())
+			if (enemy)
 			{
-				Interface::addMoney(enemy->getMoney());
-				enemies.remove(enemy);
-				break;
+				enemy->Update(deltaTime, window, enemies);
+				map.updateTurnEnemy(*enemy);
+				if (!enemy->isAlive())
+				{
+					Interface::addMoney(enemy->getMoney());
+					enemies.remove(enemy);
+					break;
+				}
 			}
 		}
-	}
-	checkEnemyReachedEnd();
+		checkEnemyReachedEnd();
 
-	for (auto& tower : towers)
-	{
-		tower->Update(deltaTime, window, enemies);
-	}
+		for (auto& tower : towers)
+		{
+			tower->Update(deltaTime, window, enemies);
+		}
 
-	updateGameInfo();
+		updateGameInfo();
+	}
+	mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
 	for (auto& interfaceComponent : interface)
 	{
 		interfaceComponent.second->Update(deltaTime, window);

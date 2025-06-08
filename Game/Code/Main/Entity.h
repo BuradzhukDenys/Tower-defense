@@ -17,10 +17,16 @@ public:
 	void setRotation(const sf::Angle& angle);
 	const sf::Sprite& getSprite() const;
 	sf::Vector2f getSize() const;
+
+	virtual void playAnimation(sf::Time deltaTime) {};
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies) = 0;
 protected:
 	sf::Sprite sprite;
 	sf::Vector2i frameSize;
+	int framesCount;
+	int currentFrame;
+	float timeForLastAnimationPlay;
+	bool isAnimationPlaying = false;
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

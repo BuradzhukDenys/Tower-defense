@@ -24,8 +24,14 @@ std::ostream& operator<<(std::ostream& os, const GameState::State& gameState)
 	case GameState::State::RoundPlay:
 		os << "Round play\n";
 		break;
+	case GameState::State::Win:
+		os << "Win\n";
+		break;
 	case GameState::State::Loss:
 		os << "Loss\n";
+		break;
+	case GameState::State::Exit:
+		os << "Exit\n";
 		break;
 	default:
 		break;

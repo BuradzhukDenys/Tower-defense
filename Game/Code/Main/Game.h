@@ -46,6 +46,7 @@ private:
 		const sf::Vector2f& containerSize,
 		const sf::Vector2f& containerPosition,
 		const sf::Color& containerColor);
+	InterfaceContainer& getInterfaceContainer(const Interface::InterfaceType& interfaceType);
 	/*void addTextToInterfaceContainer(const Interface::InterfaceType& interfaceType,
 		const std::string& containerText,
 		const sf::Vector2f& position,

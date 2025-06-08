@@ -2,7 +2,8 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 
 Entity::Entity(Resources::Texture textureID, const int framesCount)
-	: sprite(Resources::textures.Get(textureID))
+	: sprite(Resources::textures.Get(textureID)),
+	framesCount(framesCount), currentFrame(0), timeForLastAnimationPlay(0)
 {
 	sf::Vector2i textureSize(Resources::textures.Get(textureID).getSize());
 	frameSize = { textureSize.x / framesCount, textureSize.y };
