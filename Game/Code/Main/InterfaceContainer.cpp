@@ -45,7 +45,7 @@ void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf
 }
 
 
-void InterfaceContainer::addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize)
+void InterfaceContainer::addContainerText(const std::string& containerString, const sf::Vector2f& position, const sf::Color& colorText, const float fontSize)
 {
 	auto ptrText = std::make_unique<sf::Text>(Resources::fonts.Get(Resources::Font::BasicFont), containerString, fontSize);
 	ptrText->setOrigin(ptrText->getLocalBounds().size / 2.f);
@@ -58,6 +58,7 @@ void InterfaceContainer::addContainerText(const std::string& containerString, co
 	}
 
 	ptrText->setPosition(sf::Vector2f(positionInGUI.x, positionInGUI.y + ptrText->getOrigin().y + MARGIN_BETWEEN_COMPONENTS));
+	ptrText->setFillColor(colorText);
 
 	containerTexts.emplace_back(std::move(ptrText));
 }
@@ -124,6 +125,9 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				break;
 			case Button::ButtonType::Resume:
 				GameState::setState(GameState::State::Game);
+				break;
+			case Button::ButtonType::Restart:
+				GameState::setState(GameState::State::Restart);
 				break;
 			case Button::ButtonType::Exit:
 				GameState::setState(GameState::State::Exit);

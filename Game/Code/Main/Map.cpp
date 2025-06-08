@@ -88,7 +88,7 @@ void Map::updateTurnEnemy(Enemy& enemy)
 
 			//Перевіряємо чи ворог знаходиться в центрі тайла, щоб повернути його. Ми перевіряємо позицію
 			//центра ворога та позицію центра тайла, перевіряємо чи їх різниця менша за погрішність в 2 пікселя
-			const float epsilon = 2.f;
+			const float epsilon = 3.5f;
 			if (std::abs(enemy.getSprite().getGlobalBounds().getCenter().x - tileRect.getCenter().x) < epsilon &&
 				std::abs(enemy.getSprite().getGlobalBounds().getCenter().y - tileRect.getCenter().y) < epsilon)
 			{

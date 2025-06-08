@@ -17,7 +17,7 @@ class InterfaceContainer :
 public:
     InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor);
     void addButtons(const int buttonsCount, const std::vector<sf::Vector2f>& sizes, const sf::Vector2f& firstButtonPosition, const std::vector<sf::Color>& colors, const std::vector<std::string>& texts, const std::vector<Button::ButtonType>& buttonTypes);
-    void addContainerText(const std::string& containerString, const sf::Vector2f& position, const float fontSize = BASE_CONTAINER_FONT_SIZE);
+    void addContainerText(const std::string& containerString, const sf::Vector2f& position, const sf::Color& colorText = sf::Color::White, const float fontSize = BASE_CONTAINER_FONT_SIZE);
     float getButtonLowerBound(const Button::ButtonType& buttonType);
 
     sf::RectangleShape getGUI() const;

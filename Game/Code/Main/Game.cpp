@@ -220,6 +220,82 @@ void Game::checkEnemyReachedEnd()
 	}
 }
 
+void Game::checkVictory()
+{
+	if (Interface::getCurrentRound() == Interface::getMaxRoudns() &&
+		GameState::getState() == GameState::State::Game &&
+		enemies.empty()/*delete*/)
+	{
+		GameState::setState(GameState::State::Win);
+		addInterfaceContainer(Interface::InterfaceType::WinnerInterface,
+			sf::Vector2f(windowSize.size),
+			sf::Vector2f(0, 0),
+			sf::Color(Interface::BASE_BACKGROUND_COLOR)
+		);
+		auto& container = getInterfaceContainer(Interface::InterfaceType::WinnerInterface);
+		sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
+
+		container.addContainerText("You win", sf::Vector2f(containerCenter.x, containerCenter.y - 150.f), sf::Color::Green);
+		container.addButtons(
+			2,//Кількість кнопок
+			std::vector<sf::Vector2f>{//Розміри кнопок
+			sf::Vector2f(350.f, 80.f),
+				sf::Vector2f(350.f, 80.f)
+		},
+			sf::Vector2f(containerCenter),//Позиція першої кнопки
+			std::vector<sf::Color>{//Кольори кнопок
+			sf::Color::Magenta,
+				sf::Color::Magenta
+		},
+			std::vector<std::string>{//Тексти кнопок
+			"Restart",
+				"Exit"
+		},
+			std::vector<Button::ButtonType>{//Типи кнопок
+			Button::ButtonType::Restart,
+				Button::ButtonType::Exit
+		}
+		);
+	}
+}
+
+void Game::checkLoss()
+{
+	if (Interface::getLives() == 0)
+	{
+		GameState::setState(GameState::State::Loss);
+		addInterfaceContainer(Interface::InterfaceType::LoserInterface,
+			sf::Vector2f(windowSize.size),
+			sf::Vector2f(0, 0),
+			sf::Color(Interface::BASE_BACKGROUND_COLOR)
+		);
+		auto& container = getInterfaceContainer(Interface::InterfaceType::LoserInterface);
+		sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
+
+		container.addContainerText("You loss", sf::Vector2f(containerCenter.x, containerCenter.y - 150.f), sf::Color::Red);
+		container.addButtons(
+			2,//Кількість кнопок
+			std::vector<sf::Vector2f>{//Розміри кнопок
+			sf::Vector2f(350.f, 80.f),
+				sf::Vector2f(350.f, 80.f)
+		},
+			sf::Vector2f(containerCenter),//Позиція першої кнопки
+			std::vector<sf::Color>{//Кольори кнопок
+			sf::Color::Magenta,
+				sf::Color::Magenta
+		},
+			std::vector<std::string>{//Тексти кнопок
+			"Restart",
+				"Exit"
+		},
+			std::vector<Button::ButtonType>{//Типи кнопок
+			Button::ButtonType::Restart,
+				Button::ButtonType::Exit
+		}
+		);
+	}
+}
+
 void Game::showGameInfo()
 {
 	window.draw(currentRoundText);
@@ -245,12 +321,12 @@ void Game::Events()
 				addInterfaceContainer(Interface::InterfaceType::PauseInterface,
 					sf::Vector2f(windowSize.size),
 					sf::Vector2f(0, 0),
-					sf::Color(Interface::PAUSE_BACKGROUND_COLOR)
+					sf::Color(Interface::BASE_BACKGROUND_COLOR)
 				);
 				auto& container = getInterfaceContainer(Interface::InterfaceType::PauseInterface);
 				sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
 
-				container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 142.f));
+				container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 150.f));
 				container.addButtons(
 					2,//Кількість кнопок
 					std::vector<sf::Vector2f>{//Розміри кнопок
@@ -322,6 +398,18 @@ void Game::Events()
 						interface.erase(Interface::InterfaceType::PauseInterface);
 					}
 					break;
+				case GameState::State::Restart:
+					if (interface.find(Interface::InterfaceType::WinnerInterface) != interface.end() ||
+						interface.find(Interface::InterfaceType::LoserInterface) != interface.end())
+					{
+						interface.erase(Interface::InterfaceType::WinnerInterface);
+						interface.erase(Interface::InterfaceType::LoserInterface);
+					}
+					Interface::reset();
+					towers.clear();
+					enemies.clear();
+					GameState::setState(GameState::State::Game);
+					break;
 				case GameState::State::Exit:
 					window.close();
 					break;
@@ -378,6 +466,9 @@ void Game::Update(sf::Time deltaTime)
 		updateGameInfo();
 	}
 	mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+	checkVictory();
+	checkLoss();
 
 	for (auto& interfaceComponent : interface)
 	{

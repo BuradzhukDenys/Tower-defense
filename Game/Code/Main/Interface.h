@@ -29,10 +29,10 @@ public:
 		UpgradeTowerInterface,
 		PauseInterface,
 		LoserInterface,
-		WiinerInterface
+		WinnerInterface
 	};
 
-	static const sf::Color PAUSE_BACKGROUND_COLOR;
+	static const sf::Color BASE_BACKGROUND_COLOR;
 
 	virtual ~Interface();
 
@@ -49,9 +49,13 @@ public:
 	static void substractMoney(const int value);
 	static void lostlives();
 
+	static void reset();
 	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
 private:
 	static constexpr int MAX_ROUNDS = 25;
+	static constexpr int START_ROUND = 1;
+	static constexpr int START_MONEY = 550;
+	static constexpr int START_LIVES = 30;
 	static TowerType selectedTower;
 	static int currentRound;
 	static int money;

@@ -21,6 +21,7 @@ public:
         Upgrade,
         Sell,
         Resume,
+        Restart,
         Exit,
         None
     };

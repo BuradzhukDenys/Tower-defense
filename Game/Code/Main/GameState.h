@@ -10,6 +10,7 @@ public:
 		RoundPlay,
 		Win,
 		Loss,
+		Restart,
 		Exit
 	};
 

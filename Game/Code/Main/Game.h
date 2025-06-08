@@ -57,6 +57,8 @@ private:
 	void initializeGameInfo();
 	void updateGameInfo();
 	void checkEnemyReachedEnd();
+	void checkVictory();
+	void checkLoss();
 	void showGameInfo();
 
 	void Events();

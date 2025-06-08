@@ -1,11 +1,11 @@
 #include "Interface.h"
 #include <iostream>
 
-int Interface::currentRound = 1;
-int Interface::money = 600;
-int Interface::lives = 30;
+int Interface::currentRound = Interface::START_ROUND;
+int Interface::money = Interface::START_MONEY;
+int Interface::lives = Interface::START_LIVES;
 Interface::TowerType Interface::selectedTower = Interface::TowerType::None;
-const sf::Color Interface::PAUSE_BACKGROUND_COLOR = sf::Color(0, 0, 0, 50);
+const sf::Color Interface::BASE_BACKGROUND_COLOR = sf::Color(0, 0, 0, 50);
 
 Interface::~Interface() {}
 
@@ -66,4 +66,11 @@ Interface::TowerType Interface::getSelectedTower()
 void Interface::setSelectedTower(TowerType towerType)
 {
 	selectedTower = towerType;
+}
+
+void Interface::reset()
+{
+	currentRound = START_ROUND;
+	money = START_MONEY;
+	lives = START_LIVES;
 }
