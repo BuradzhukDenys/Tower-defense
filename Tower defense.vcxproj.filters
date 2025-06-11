@@ -40,9 +40,6 @@
     <ClCompile Include="Game\Code\Main\Projectile.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Code\Main\Ballista.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Code\Main\Resources.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -61,10 +58,13 @@
     <ClCompile Include="Game\Code\Main\Enemy.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Code\Main\Goblin.cpp">
+    <ClCompile Include="Game\Code\Main\GameState.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Code\Main\GameState.cpp">
+    <ClCompile Include="Game\Code\Main\AOEProjectile.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Code\Main\piercingProjectile.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -79,9 +79,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Game\Code\Main\Projectile.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Code\Main\Ballista.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Game\Code\Tools\ResourceManager.h">
@@ -105,11 +102,18 @@
     <ClInclude Include="Game\Code\Main\Enemy.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Code\Main\Goblin.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Code\Main\GameState.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Code\Main\AOEProjectile.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Code\Main\piercingProjectile.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Game\Code\Stats\Towers.txt" />
+    <Text Include="Game\Code\Stats\Enemies.txt" />
   </ItemGroup>
 </Project>

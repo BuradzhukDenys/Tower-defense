@@ -30,7 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Code\Main\Button.cpp" />
-    <ClCompile Include="Game\Code\Main\Ballista.cpp" />
     <ClCompile Include="Game\Code\Main\Enemy.cpp" />
     <ClCompile Include="Game\Code\Main\Entity.cpp" />
     <ClCompile Include="Game\Code\Main\Game.cpp" />
@@ -42,12 +41,12 @@
     <ClCompile Include="Game\Code\Main\Resources.cpp" />
     <ClCompile Include="Game\Code\Main\Interface.cpp" />
     <ClCompile Include="Game\Code\Main\InterfaceContainer.cpp" />
-    <ClCompile Include="Game\Code\Main\Goblin.cpp" />
+    <ClCompile Include="Game\Code\Main\piercingProjectile.cpp" />
+    <ClCompile Include="Game\Code\Main\AOEProjectile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Code\Main\GameState.h" />
     <ClInclude Include="Game\Code\Main\Button.h" />
-    <ClInclude Include="Game\Code\Main\Ballista.h" />
     <ClInclude Include="Game\Code\Main\Enemy.h" />
     <ClInclude Include="Game\Code\Main\Entity.h" />
     <ClInclude Include="Game\Code\Main\Game.h" />
@@ -58,7 +57,12 @@
     <ClInclude Include="Game\Code\Main\Resources.h" />
     <ClInclude Include="Game\Code\Main\Interface.h" />
     <ClInclude Include="Game\Code\Main\InterfaceContainer.h" />
-    <ClInclude Include="Game\Code\Main\Goblin.h" />
+    <ClInclude Include="Game\Code\Main\piercingProjectile.h" />
+    <ClInclude Include="Game\Code\Main\AOEProjectile.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Game\Code\Stats\Enemies.txt" />
+    <Text Include="Game\Code\Stats\Towers.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
