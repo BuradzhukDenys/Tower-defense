@@ -35,6 +35,8 @@ public:
     int getMoneyReward() const;
     bool isAlive() const;
 
+    float getHealth() const;//delete
+
     void updateHealthBar();
     virtual void playAnimation(sf::Time deltaTime) override;
     virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies) override;
@@ -44,11 +46,11 @@ private:
     struct EnemyStats
     {
         int moneyReward;
-        int healthPoints;
+        float healthPoints;
         float moveSpeed;
     };
     int moneyReward = 0;
-    int healthPoints = 0;
+    float healthPoints = 0;
     float moveSpeed = 0;
     float animationSpeed = 0.25;
 

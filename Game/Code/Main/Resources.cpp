@@ -13,9 +13,13 @@ void Resources::Initialize()
 
 void Resources::InitializeTextures()
 {
-	textures.Load(Texture::BallistaSpriteSheet, "Assets/Textures/SpriteSheetBallista.png");
+	textures.Load(Texture::Ballista, "Assets/Textures/SpriteSheetBallista.png");
+	textures.Load(Texture::Bomber, "Assets/Textures/BomberSpriteSheet.png");
+	textures.Load(Texture::Wizzard, "Assets/Textures/WizzardSpriteSheet.png");
 	textures.Load(Texture::MapTiles, "Assets/Textures/MapTiles.png");
 	textures.Load(Texture::BallistaShot, "Assets/Textures/BallistaShot.png");
+	textures.Load(Texture::BomberShot, "Assets/Textures/BomberShot.png");
+	textures.Load(Texture::WizzardShot, "Assets/Textures/WizzardShot.png");
 	textures.Load(Texture::Goblin, "Assets/Textures/GoblinSpriteSheet.png");
 	textures.Load(Texture::Orc, "Assets/Textures/OrcSpriteSheet.png");
 	textures.Load(Texture::Wolf, "Assets/Textures/WolfSpriteSheet.png");

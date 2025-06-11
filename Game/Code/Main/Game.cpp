@@ -31,18 +31,25 @@ void Game::checkSelectedTower()
 {
 	if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
 	{
-		if (!pickableTower)
+		if (!pickableTower || pickableTower->getType() != Tower::TowerType::Ballista)
 		{
-			pickableTower = std::make_unique<Tower>(Tower::TowerType::Ballista ,Resources::Texture::BallistaSpriteSheet, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES);
+			pickableTower = std::make_unique<Tower>(Tower::TowerType::Ballista, Resources::Texture::Ballista, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES);
 		}
 	}
-	/*else if (Interface::getSelectedTower() == Interface::TowerType::Bomber)
+	else if (Interface::getSelectedTower() == Interface::TowerType::Bomber)
 	{
-		if (!pickableTower || dynamic_cast<Ballista*>(pickableTower.get()) == nullptr)
+		if (!pickableTower || pickableTower->getType() != Tower::TowerType::Bomber)
 		{
-			pickableTower = std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition);
+			pickableTower = std::make_unique<Tower>(Tower::TowerType::Bomber, Resources::Texture::Bomber, mousePosition, TowersFrames::BOMBER_MAX_FRAMES);
 		}
-	}*/
+	}
+	else if (Interface::getSelectedTower() == Interface::TowerType::Wizzard)
+	{
+		if (!pickableTower || pickableTower->getType() != Tower::TowerType::Wizzard)
+		{
+			pickableTower = std::make_unique<Tower>(Tower::TowerType::Wizzard, Resources::Texture::Wizzard, mousePosition, TowersFrames::WIZZARD_MAX_FRAMES);
+		}
+	}
 	else
 		pickableTower.reset();
 }
@@ -96,12 +103,24 @@ void Game::checkCanPlace()
 
 void Game::placeTower()
 {
-	if (canPlaceTower)
+	if (pickableTower && canPlaceTower)
 	{
 		if (Interface::getMoney() >= pickableTower->getPrice() &&
-			Interface::getSelectedTower() == Interface::TowerType::Ballista)
+			pickableTower->getType() == Tower::TowerType::Ballista)
 		{
-			towers.emplace_back(std::make_unique<Tower>(Tower::TowerType::Ballista, Resources::Texture::BallistaSpriteSheet, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES));
+			towers.emplace_back(std::make_unique<Tower>(Tower::TowerType::Ballista, Resources::Texture::Ballista, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES));
+			Interface::substractMoney(pickableTower->getPrice());
+		}
+		else if (Interface::getMoney() >= pickableTower->getPrice() &&
+			pickableTower->getType() == Tower::TowerType::Bomber)
+		{
+			towers.emplace_back(std::make_unique<Tower>(Tower::TowerType::Bomber, Resources::Texture::Bomber, mousePosition, TowersFrames::BOMBER_MAX_FRAMES));
+			Interface::substractMoney(pickableTower->getPrice());
+		}
+		else if (Interface::getMoney() >= pickableTower->getPrice() &&
+			pickableTower->getType() == Tower::TowerType::Wizzard)
+		{
+			towers.emplace_back(std::make_unique<Tower>(Tower::TowerType::Wizzard, Resources::Texture::Wizzard, mousePosition, TowersFrames::WIZZARD_MAX_FRAMES));
 			Interface::substractMoney(pickableTower->getPrice());
 		}
 		else
@@ -141,6 +160,7 @@ void Game::deleteInterfaceContainer(const Interface::InterfaceType& interfaceTyp
 	interface.erase(interfaceType);
 }
 
+//edit
 void Game::initializeInterface()
 {
 	addInterfaceContainer(Interface::InterfaceType::SelectTowerInterface,
@@ -207,11 +227,11 @@ void Game::updateGameInfo()
 
 void Game::checkEnemyReachedEnd()
 {
-	for (auto it = enemies.begin(); it != enemies.end(); ++it)
+	for (const auto& enemy : enemies)
 	{
-		if ((*it)->getPosition().x > map.getMapWidth())
+		if (enemy->getPosition().x > map.getMapWidth())
 		{
-			enemies.erase(it);
+			enemies.remove(enemy);
 			Interface::lostlives();
 			break;
 		}
@@ -374,7 +394,7 @@ void Game::Events()
 
 			if (keyReleased->scancode == sf::Keyboard::Scancode::Q)
 			{
-				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Goblin, Resources::Texture::Goblin, sf::Vector2f(550, 600), EnemiesFrames::GOBLIN_MAX_FRAMES));
+				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Goblin, Resources::Texture::Goblin, map.getStartMap(), EnemiesFrames::GOBLIN_MAX_FRAMES));
 			}
 
 			if (keyReleased->scancode == sf::Keyboard::Scancode::W)
@@ -452,6 +472,10 @@ void Game::Events()
 
 void Game::Update(sf::Time deltaTime)
 {
+	if (!enemies.empty())
+	{
+		std::cout << enemies.begin()->get()->getHealth() << "\n";
+	}
 	if (GameState::getState() != GameState::State::Pause)
 	{
 		for (const auto& enemy : enemies)

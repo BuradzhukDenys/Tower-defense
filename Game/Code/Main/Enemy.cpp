@@ -64,6 +64,11 @@ bool Enemy::isAlive() const
 	return enemyIsAlive;
 }
 
+float Enemy::getHealth() const
+{
+	return healthPoints;
+}
+
 void Enemy::updateHealthBar()
 {
 	float healthPercent = static_cast<float>(healthPoints) / maxHealthPoints;
@@ -129,8 +134,8 @@ void Enemy::initializeEnemiesStats()
 		if (!EnemyName.empty() && EnemyName.back() == ':')
 			EnemyName.pop_back();
 
-		int moneyReward, healthPoints;
-		float moveSpeed;
+		int moneyReward;
+		float healthPoints, moveSpeed;
 		lineStream >> moneyReward >> healthPoints >> moveSpeed;
 
 		EnemyType type;

@@ -6,8 +6,12 @@ class Resources
 public:
 	enum class Texture
 	{
-		BallistaSpriteSheet,
+		Ballista,
+		Bomber,
+		Wizzard,
 		BallistaShot,
+		BomberShot,
+		WizzardShot,
 		MapTiles,
 		Goblin,
 		Orc,
