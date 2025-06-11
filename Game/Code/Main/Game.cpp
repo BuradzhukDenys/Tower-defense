@@ -1,6 +1,4 @@
 #include "Game.h"
-#include "Ballista.h"
-#include "Goblin.h"
 #include "InterfaceContainer.h"
 #include <iostream>
 
@@ -33,9 +31,9 @@ void Game::checkSelectedTower()
 {
 	if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
 	{
-		if (!pickableTower || dynamic_cast<Ballista*>(pickableTower.get()) == nullptr)
+		if (!pickableTower)
 		{
-			pickableTower = std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition);
+			pickableTower = std::make_unique<Tower>(Tower::TowerType::Ballista ,Resources::Texture::BallistaSpriteSheet, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES);
 		}
 	}
 	/*else if (Interface::getSelectedTower() == Interface::TowerType::Bomber)
@@ -100,11 +98,11 @@ void Game::placeTower()
 {
 	if (canPlaceTower)
 	{
-		if (Interface::getMoney() >= Ballista::getPrice() &&
+		if (Interface::getMoney() >= pickableTower->getPrice() &&
 			Interface::getSelectedTower() == Interface::TowerType::Ballista)
 		{
-			towers.emplace_back(std::make_unique<Ballista>(Resources::Texture::BallistaSpriteSheet, mousePosition));
-			Interface::substractMoney(Ballista::getPrice());
+			towers.emplace_back(std::make_unique<Tower>(Tower::TowerType::Ballista, Resources::Texture::BallistaSpriteSheet, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES));
+			Interface::substractMoney(pickableTower->getPrice());
 		}
 		else
 		{
@@ -166,9 +164,9 @@ void Game::initializeInterface()
 		sf::Vector2f(containerCenterX, container.getPosition().y),//Позиція першої кнопки
 		std::vector<sf::Color>{sf::Color::Blue, sf::Color::Blue, sf::Color::Blue, sf::Color(0, 130, 0)/*Зелений колір*/},//Кольори кнопок
 		std::vector<std::string>{//Текст кнопок
-		"Ballista\n" + std::to_string(Ballista::getPrice()) + "$",
-			"Bomber\n" + std::to_string(Ballista::getPrice()) + "$",
-			"Wizzard\n" + std::to_string(Ballista::getPrice()) + "$",
+		"Ballista\n" + std::to_string(Tower::getPrice(Tower::TowerType::Ballista)) + "$",
+			"Bomber\n" + std::to_string(Tower::getPrice(Tower::TowerType::Bomber)) + "$",
+			"Wizzard\n" + std::to_string(Tower::getPrice(Tower::TowerType::Wizzard)) + "$",
 			"Play"
 	},
 		std::vector<Button::ButtonType>{//Типи кнопок
@@ -223,7 +221,7 @@ void Game::checkEnemyReachedEnd()
 void Game::checkVictory()
 {
 	if (Interface::getCurrentRound() == Interface::getMaxRoudns() &&
-		GameState::getState() == GameState::State::Game &&
+		(GameState::getState() == GameState::State::Game || GameState::getState() == GameState::State::RoundPlay) &&
 		enemies.empty()/*delete*/)
 	{
 		GameState::setState(GameState::State::Win);
@@ -315,7 +313,8 @@ void Game::Events()
 
 		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
-			if (keyReleased->scancode == sf::Keyboard::Scan::Escape)
+			if (keyReleased->scancode == sf::Keyboard::Scan::Escape &&
+				(GameState::getState() == GameState::State::Game || GameState::getState() == GameState::State::RoundPlay))
 			{
 				GameState::setState(GameState::State::Pause);
 				addInterfaceContainer(Interface::InterfaceType::PauseInterface,
@@ -357,7 +356,11 @@ void Game::Events()
 			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
 			{
 				Interface::addMoney(25);
-				std::cout << GameState::getState();
+				
+				if (!towers.empty())
+				{
+					towers.begin()->get()->upgradeAttackSpeed(1, Tower::UpgradeType::additive);
+				}
 			}
 			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus)
 			{
@@ -369,9 +372,19 @@ void Game::Events()
 				Interface::lostlives();
 			}
 
+			if (keyReleased->scancode == sf::Keyboard::Scancode::Q)
+			{
+				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Goblin, Resources::Texture::Goblin, sf::Vector2f(550, 600), EnemiesFrames::GOBLIN_MAX_FRAMES));
+			}
+
 			if (keyReleased->scancode == sf::Keyboard::Scancode::W)
 			{
-				enemies.emplace_back(std::make_unique<Goblin>(Resources::Texture::Goblin, map.getStartMap()));
+				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Orc, Resources::Texture::Orc, map.getStartMap(), EnemiesFrames::ORC_MAX_FRAMES));
+			}
+
+			if (keyReleased->scancode == sf::Keyboard::Scancode::E)
+			{
+				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Wolf, Resources::Texture::Wolf, map.getStartMap(), EnemiesFrames::WOLF_MAX_FRAMES));
 			}
 		}
 
@@ -393,6 +406,7 @@ void Game::Events()
 				switch (GameState::getState())
 				{
 				case GameState::State::Game:
+				case GameState::State::RoundPlay:
 					if (interface.find(Interface::InterfaceType::PauseInterface) != interface.end())
 					{
 						interface.erase(Interface::InterfaceType::PauseInterface);
@@ -440,17 +454,15 @@ void Game::Update(sf::Time deltaTime)
 {
 	if (GameState::getState() != GameState::State::Pause)
 	{
-		updatePickableTower();
-
 		for (const auto& enemy : enemies)
 		{
 			if (enemy)
 			{
-				enemy->Update(deltaTime, window, enemies);
+				enemy->Update(deltaTime, mousePosition, enemies);
 				map.updateTurnEnemy(*enemy);
 				if (!enemy->isAlive())
 				{
-					Interface::addMoney(enemy->getMoney());
+					Interface::addMoney(enemy->getMoneyReward());
 					enemies.remove(enemy);
 					break;
 				}
@@ -458,9 +470,10 @@ void Game::Update(sf::Time deltaTime)
 		}
 		checkEnemyReachedEnd();
 
+		updatePickableTower();
 		for (auto& tower : towers)
 		{
-			tower->Update(deltaTime, window, enemies);
+			tower->Update(deltaTime, mousePosition, enemies);
 		}
 
 		updateGameInfo();
