@@ -7,7 +7,6 @@ Entity::Entity(Resources::Texture textureID, const int framesCount)
 {
 	sf::Vector2i textureSize(Resources::textures.Get(textureID).getSize());
 	frameSize = { textureSize.x / framesCount, textureSize.y };
-	sprite.setOrigin(sf::Vector2f(textureSize / 2));
 	sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 }
 

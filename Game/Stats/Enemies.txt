@@ -1,0 +1,4 @@
+#EnemyType: moneyRewards, healthPoints, moveSpeed
+Goblin: 85 55 67.0
+Orc: 135 110 30.0
+Wolf: 55 63 75.0

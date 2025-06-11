@@ -17,6 +17,8 @@ void Resources::InitializeTextures()
 	textures.Load(Texture::MapTiles, "Assets/Textures/MapTiles.png");
 	textures.Load(Texture::BallistaShot, "Assets/Textures/BallistaShot.png");
 	textures.Load(Texture::Goblin, "Assets/Textures/GoblinSpriteSheet.png");
+	textures.Load(Texture::Orc, "Assets/Textures/OrcSpriteSheet.png");
+	textures.Load(Texture::Wolf, "Assets/Textures/WolfSpriteSheet.png");
 }
 
 void Resources::InitializeFonts()  

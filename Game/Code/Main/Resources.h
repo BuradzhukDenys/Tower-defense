@@ -9,7 +9,9 @@ public:
 		BallistaSpriteSheet,
 		BallistaShot,
 		MapTiles,
-		Goblin
+		Goblin,
+		Orc,
+		Wolf
 	};
 
 	enum class Font
