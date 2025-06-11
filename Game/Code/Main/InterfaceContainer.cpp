@@ -107,7 +107,7 @@ sf::Vector2f InterfaceContainer::getContainerTextPositionSize(const std::string&
 
 void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 {
-	for (const auto& button : buttons) {  
+	for (const auto& button : buttons) {
 		if (button->isClicked(mousePos)) {
 			switch (button->getButtonType())
 			{
@@ -121,10 +121,11 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				Interface::setSelectedTower(Interface::TowerType::Wizzard);
 				break;
 			case Button::ButtonType::Play:
+				GameState::setStateBeforePause(GameState::State::RoundPlay);
 				GameState::setState(GameState::State::RoundPlay);
 				break;
 			case Button::ButtonType::Resume:
-				GameState::setState(GameState::State::Game);
+				GameState::setState(GameState::getStateBeforePause());
 				break;
 			case Button::ButtonType::Restart:
 				GameState::setState(GameState::State::Restart);
@@ -133,6 +134,7 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				GameState::setState(GameState::State::Exit);
 				break;
 			default:
+				GameState::setStateBeforePause(GameState::State::Game);
 				break;
 			}
 		}

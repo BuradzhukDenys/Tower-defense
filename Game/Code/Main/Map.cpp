@@ -4,9 +4,7 @@
 #include <iostream>
 
 Map::Map(const sf::Vector2u& size, const int tilesCount)
-	: mapSprite(Resources::textures.Get(Resources::Texture::MapTiles))/*,
-	MAP_WIDTH((size.x - 400.f) / 40.f),
-	MAP_HEIGHT(size.y / 40.f)*/
+	: mapSprite(Resources::textures.Get(Resources::Texture::MapTiles))
 {
 	sf::Vector2i mapTilesTextureSize(Resources::textures.Get(Resources::Texture::MapTiles).getSize());
 	mapTileSize = { mapTilesTextureSize.x / tilesCount, mapTilesTextureSize.y };
