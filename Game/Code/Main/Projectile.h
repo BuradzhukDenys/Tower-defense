@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "Enemy.h"
 
 class Tower;
 
@@ -7,14 +8,15 @@ class Projectile :
     public Entity
 {
 public:
-    Projectile(Resources::Texture textureID, Tower& tower, float moveSpeed, float duration, float towerDamage);
+    Projectile(Resources::Texture textureID, const Tower& tower, float moveSpeed, float duration, const int framesCount = 1);
 
-    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies) override;
+    virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies) = 0;
     bool isAlive() const;
-private:
-    float duration = 0;
-    float moveSpeed = 0;
-    float towerDamage;
+protected:
+    bool hitEnemy(const std::list<std::unique_ptr<Enemy>>& enemies);
+    float duration;
+    float moveSpeed;
+    float damage;
     bool projectileIsAlive;
     sf::Vector2f moveDirection;
 };

@@ -2,17 +2,17 @@
 #include "Tower.h"
 #include <iostream>
 
-Projectile::Projectile(Resources::Texture textureID, Tower& tower, float moveSpeed, float duration, float towerDamage)
-	: Entity(textureID), moveSpeed(moveSpeed), duration(duration), projectileIsAlive(true), towerDamage(towerDamage)
+Projectile::Projectile(Resources::Texture textureID, const Tower& tower, float moveSpeed, float duration, const int framesCount)
+	: Entity(textureID, framesCount), moveSpeed(moveSpeed), duration(duration), projectileIsAlive(true), damage(tower.getDamage())
 {
 	sprite.setPosition(tower.getPosition());
-	sprite.setRotation(tower.getRotation());
+	sprite.setRotation(tower.getRotateAngleToEnemy());
 
-	float angleInRadians = tower.getRotation().asRadians();
+	float angleInRadians = tower.getRotateAngleToEnemy().asRadians();
 	moveDirection = sf::Vector2f(std::cos(angleInRadians), std::sin(angleInRadians));
 }
 
-void Projectile::Update(sf::Time deltaTime, const sf::RenderWindow& window, const std::list<std::unique_ptr<Enemy>>& enemies)
+void Projectile::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies)
 {
 	sprite.move(moveDirection * moveSpeed * deltaTime.asSeconds());
 
@@ -21,20 +21,24 @@ void Projectile::Update(sf::Time deltaTime, const sf::RenderWindow& window, cons
 	{
 		projectileIsAlive = false;
 	}
-
-	for (const auto& enemy : enemies)
-	{
-		if (!enemy) continue;
-		if (enemy->getSprite().getGlobalBounds().findIntersection(sprite.getGlobalBounds()))
-		{
-			enemy->takeDamage(towerDamage);
-			projectileIsAlive = false;
-			break;
-		}
-	}
 }
 
 bool Projectile::isAlive() const
 {
 	return projectileIsAlive;
+}
+
+bool Projectile::hitEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
+{
+	for (const auto& enemy : enemies)
+	{
+		if (enemy->getSprite().getGlobalBounds().findIntersection(sprite.getGlobalBounds()))
+		{
+			enemy->takeDamage(damage);
+			projectileIsAlive = false;
+			return true;
+		}
+	}
+
+	return false;
 }
