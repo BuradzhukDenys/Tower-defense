@@ -8,6 +8,18 @@ StandartProjectile::StandartProjectile(Resources::Texture textureID, const Tower
 void StandartProjectile::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies)
 {
 	Projectile::Update(deltaTime, mousePosition, enemies);
+	checkHitAndDamageEnemy(enemies);
+}
 
-	hitEnemy(enemies);
+void StandartProjectile::checkHitAndDamageEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
+{
+	for (const auto& enemy : enemies)
+	{
+		if (hitEnemy(enemy))
+		{
+			enemy->takeDamage(damage);
+			projectileIsAlive = false;
+			return;
+		}
+	}
 }

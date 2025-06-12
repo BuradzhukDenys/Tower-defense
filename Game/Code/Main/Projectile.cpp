@@ -28,16 +28,11 @@ bool Projectile::isAlive() const
 	return projectileIsAlive;
 }
 
-bool Projectile::hitEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
+bool Projectile::hitEnemy(const std::unique_ptr<Enemy>& enemy)
 {
-	for (const auto& enemy : enemies)
+	if (enemy->getSprite().getGlobalBounds().findIntersection(sprite.getGlobalBounds()))
 	{
-		if (enemy->getSprite().getGlobalBounds().findIntersection(sprite.getGlobalBounds()))
-		{
-			enemy->takeDamage(damage);
-			projectileIsAlive = false;
-			return true;
-		}
+		return true;
 	}
 
 	return false;
