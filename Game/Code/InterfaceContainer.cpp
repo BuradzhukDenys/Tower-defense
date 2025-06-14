@@ -2,6 +2,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Time.hpp>
 #include <iostream>
+#include "WavesManager.h"
 
 InterfaceContainer::InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor)
 	: GUI(size), backgroundColor(backgroundColor)
@@ -121,8 +122,12 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				Interface::setSelectedTower(Interface::TowerType::Wizzard);
 				break;
 			case Button::ButtonType::Play:
-				GameState::setStateBeforePause(GameState::State::RoundPlay);
-				GameState::setState(GameState::State::RoundPlay);
+				if (GameState::getState() == GameState::State::Game)
+				{
+					GameState::setStateBeforePause(GameState::State::WavePlay);
+					GameState::setState(GameState::State::WavePlay);
+					WavesManager::startWave();
+				}
 				break;
 			case Button::ButtonType::Resume:
 				GameState::setState(GameState::getStateBeforePause());
@@ -134,7 +139,6 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 				GameState::setState(GameState::State::Exit);
 				break;
 			default:
-				GameState::setStateBeforePause(GameState::State::Game);
 				break;
 			}
 		}

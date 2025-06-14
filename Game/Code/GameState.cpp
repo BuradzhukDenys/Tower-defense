@@ -32,8 +32,8 @@ std::ostream& operator<<(std::ostream& os, const GameState::State& gameState)
 	case GameState::State::Game:
 		os << "Game\n";
 		break;
-	case GameState::State::RoundPlay:
-		os << "Round play\n";
+	case GameState::State::WavePlay:
+		os << "Wave play\n";
 		break;
 	case GameState::State::Win:
 		os << "Win\n";

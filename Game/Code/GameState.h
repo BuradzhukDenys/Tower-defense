@@ -7,7 +7,7 @@ public:
 	{
 		Pause,
 		Game,
-		RoundPlay,
+		WavePlay,
 		Win,
 		Loss,
 		Restart,
