@@ -6,6 +6,10 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <iostream>
+#include "AOEProjectile.h"
+#include "StandartProjectile.h"
+#include "piercingProjectile.h"
 
 const sf::Color Tower::BASE_ATTACK_RADIUS_COLOR = sf::Color(90, 90, 90, 40);
 const sf::Color Tower::WRONG_PLACE_TOWER_RADIUS_COLOR = sf::Color(255, 0, 0, 40);
@@ -22,6 +26,9 @@ Tower::Tower(const TowerType type, Resources::Texture textureID, const sf::Vecto
 		damage = stats.damage;
 		attackSpeed = stats.attackSpeed;
 		attackRange = stats.attackRange;
+		canRotate = stats.canRotate;
+		projectileSpeed = stats.projectileSpeed;
+		projectileDuration = stats.projectileDuration;
 		animationSpeed = (1.f / attackSpeed) / (framesCount + 1);
 	}
 	else
@@ -52,7 +59,7 @@ void Tower::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const 
 		}
 	);
 
-	followTheEnemyAndShoot(enemies);
+	Attack(enemies);
 
 	if (isAnimationPlaying)
 	{
@@ -85,40 +92,70 @@ void Tower::playAnimation(sf::Time deltaTime)
 	}
 }
 
+sf::Angle Tower::getRotateAngleToEnemy() const
+{
+	return rotateAngleToEnemy;
+}
+
 void Tower::shoot()
 {
 	if (timeBetweenShots <= 0)
 	{
-		projectiles.emplace_back(std::make_unique<Projectile>(
-			Resources::Texture::BallistaShot,
-			*this,
-			BALLISTA_PROJECTILE_SPEED,
-			BALLISTA_PROJECTILE_DURATION
-		));
+		switch (towerType)
+		{
+		case Tower::TowerType::Ballista:
+			projectiles.emplace_back(std::make_unique<StandartProjectile>(
+				Resources::Texture::BallistaShot,
+				*this,
+				projectileSpeed,
+				projectileDuration
+			));
+			break;
+		case Tower::TowerType::Bomber:
+			projectiles.emplace_back(std::make_unique<AOEProjectile>(
+				Resources::Texture::BomberShot,
+				*this,
+				projectileSpeed,
+				projectileDuration,
+				BOMBER_AOE_RADIUS
+			));
+			break;
+		case Tower::TowerType::Wizzard:
+			projectiles.emplace_back(std::make_unique<piercingProjectile>(
+				Resources::Texture::WizzardShot,
+				*this,
+				projectileSpeed,
+				projectileDuration,
+				WIZZARD_PIERCING_NUMBER
+			));
+			break;
+		default:
+			break;
+		}
+
 		timeBetweenShots = 1.f / attackSpeed;
 		isAnimationPlaying = true;
 		timeForLastAnimationPlay = 0;
 	}
 }
 
-//edit
-void Tower::followTheEnemyAndShoot(const std::list<std::unique_ptr<Enemy>>& enemies)
+void Tower::Attack(const std::list<std::unique_ptr<Enemy>>& enemies)
 {
-	for (const auto& enemy : enemies)
+	Enemy* targetEnemy = getFrontEnemy(enemies);
+
+	if (targetEnemy && inRadius(targetEnemy->getSprite().getGlobalBounds().getCenter()))
 	{
-		if (!enemy) continue;
-		if (inRadius(enemy->getPosition()))
+		sf::Vector2f towerPosition(sprite.getPosition());
+		sf::Vector2f distanceToEnemy = targetEnemy->getSprite().getGlobalBounds().getCenter() - towerPosition;
+		float angleInRadians = std::atan2(distanceToEnemy.y, distanceToEnemy.x);
+		rotateAngleToEnemy = sf::radians(angleInRadians);
+
+		if (canRotate)
 		{
-			sf::Vector2f towerPosition(sprite.getPosition());
-
-			sf::Vector2f distanceToEnemy = enemy->getPosition() - towerPosition;
-			float angleInRadians = std::atan2(distanceToEnemy.y, distanceToEnemy.x);
-			sf::Angle angle(sf::radians(angleInRadians));
-			sprite.setRotation(angle);
-
-			shoot();
-			break;
+			sprite.setRotation(rotateAngleToEnemy);
 		}
+
+		shoot();
 	}
 }
 
@@ -160,17 +197,18 @@ bool Tower::intersects(const sf::Vector2f& point) const
 	float dx = point.x - center.x;
 	float dy = point.y - center.y;
 	float distance = std::sqrt(dx * dx + dy * dy);
-	if (distance <= radius)
-	{
-		return sprite.getGlobalBounds().contains(point);
-	}
 
-	return false;
+	return distance < radius;
 }
 
 bool Tower::inRadius(const sf::Vector2f& point) const
 {
 	return radius.getGlobalBounds().contains(point);
+}
+
+std::list<std::unique_ptr<Projectile>>& Tower::getProjectiles()
+{
+	return projectiles;
 }
 
 float Tower::getDamage() const
@@ -181,6 +219,11 @@ float Tower::getDamage() const
 int Tower::getPrice() const
 {
 	return price;
+}
+
+Tower::TowerType Tower::getType() const
+{
+	return towerType;
 }
 
 int Tower::getPrice(TowerType type)
@@ -266,8 +309,9 @@ void Tower::initializeTowersStats()
 			towerName.pop_back();
 
 		int price;
-		float damage, attackSpeed, attackRange;
-		lineStream >> price >> damage >> attackSpeed >> attackRange;
+		float damage, attackSpeed, attackRange, projectileSpeed, projectileDuration;
+		bool canRotate;
+		lineStream >> price >> damage >> attackSpeed >> attackRange >> canRotate >> projectileSpeed >> projectileDuration;
 
 		TowerType type;
 		if (towerName == "Ballista")
@@ -284,10 +328,47 @@ void Tower::initializeTowersStats()
 		}
 		else continue;
 
-		towerStatsMap[type] = { price, damage, attackSpeed, attackRange };
+		towerStatsMap[type] = { price, damage, attackSpeed, attackRange, canRotate, projectileSpeed, projectileDuration };
 	}
 
 	towersStatsFile.close();
+}
+
+Enemy* Tower::getFrontEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
+{
+	Enemy* frontEnemy = nullptr;
+
+	for (const auto& enemy : enemies)
+	{
+		if (!enemy) continue;
+		if (inRadius(enemy->getSprite().getGlobalBounds().getCenter()))
+		{
+			if (!frontEnemy)
+			{
+				frontEnemy = enemy.get();
+			}
+			else
+			{
+				const sf::Vector2f& enemyPos = enemy->getPosition();
+				const sf::Vector2f& frontEnemyPos = frontEnemy->getPosition();
+
+				if (frontEnemy->getDirection() == Enemy::Direction::Right && enemyPos.x > frontEnemyPos.x)
+				{
+					frontEnemy = enemy.get();
+				}
+				else if (frontEnemy->getDirection() == Enemy::Direction::Up && enemyPos.y < frontEnemyPos.y)
+				{
+					frontEnemy = enemy.get();
+				}
+				else if (frontEnemy->getDirection() == Enemy::Direction::Down && enemyPos.y > frontEnemyPos.y)
+				{
+					frontEnemy = enemy.get();
+				}
+			}
+		}
+	}
+
+	return frontEnemy;
 }
 
 void Tower::draw(sf::RenderTarget& target, sf::RenderStates states) const

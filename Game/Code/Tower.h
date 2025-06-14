@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Projectile.h"
 #include "InterfaceContainer.h"
-#include "Enemy.h"
 #include <map>
 
 namespace TowersFrames
@@ -32,14 +31,18 @@ public:
 
 	Tower(const TowerType type, Resources::Texture textureID, const sf::Vector2f& position, const int framesCount = 1);
 
-	void followTheEnemyAndShoot(const std::list<std::unique_ptr<Enemy>>& enemies);
+	sf::Angle getRotateAngleToEnemy() const;
+	void shoot();
+	void Attack(const std::list<std::unique_ptr<Enemy>>& enemies);
 	bool intersects(const sf::FloatRect& rect) const;
 	bool intersects(const Tower& other) const;
 	bool intersects(const sf::Vector2f& point) const;
 	bool inRadius(const sf::Vector2f& point) const;
 
+	std::list<std::unique_ptr<Projectile>>& getProjectiles();
 	float getDamage() const;
 	int getPrice() const;
+	TowerType getType() const;
 	static int getPrice(TowerType type);
 	void upgradeDamage(const float damageValue, const UpgradeType& bonusType);
 	void upgradeAttackSpeed(const float AttackSpeedValue, const UpgradeType& bonusType);
@@ -52,7 +55,6 @@ public:
 	
 	virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies) override;
 	virtual void playAnimation(sf::Time deltaTime) override;
-	void shoot();
 
 	static void initializeTowersStats();
 private:
@@ -62,21 +64,30 @@ private:
 		float damage;
 		float attackSpeed;
 		float attackRange;
+		bool canRotate;
+		float projectileSpeed;
+		float projectileDuration;
 	};
 	int price = 0;
-	float damage = 0;
-	float attackSpeed = 0;
-	float attackRange = 0;
-	float animationSpeed = 0;
-	float timeBetweenShots = 0;
+	float damage = 0.f;
+	float attackSpeed = 0.f;
+	float attackRange = 0.f;
+	float animationSpeed = 0.f;
+	float timeBetweenShots = 0.f;
 	bool isActive = false;
+	bool canRotate = true;
+	float projectileSpeed;
+	float projectileDuration;
+	sf::Angle rotateAngleToEnemy;
 
+	TowerType towerType;
 	sf::CircleShape radius;
 	std::list<std::unique_ptr<Projectile>> projectiles;
 	static std::map<TowerType, TowerStats> towerStatsMap;
-	static constexpr float BALLISTA_PROJECTILE_SPEED = 300.f;
-	static constexpr float BALLISTA_PROJECTILE_DURATION = 5.f;
+	static constexpr float BOMBER_AOE_RADIUS = 90.f;
+	static constexpr int WIZZARD_PIERCING_NUMBER = 4;
 
+	Enemy* getFrontEnemy(const std::list<std::unique_ptr<Enemy>>& enemies);
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
