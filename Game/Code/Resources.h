@@ -29,7 +29,6 @@ public:
 		GoblinDeath,
 		OrcDeath,
 		WolfDeath,
-		Explosive,
 		SellTower,
 	};
 

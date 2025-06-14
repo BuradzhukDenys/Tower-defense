@@ -46,7 +46,6 @@ void Resources::InitializeSounds()
 	sounds.Load(Sound::GoblinDeath, "Assets/Sounds/goblin-death.mp3");
 	sounds.Load(Sound::OrcDeath, "Assets/Sounds/orc-death.mp3");
 	sounds.Load(Sound::WolfDeath, "Assets/Sounds/wolf-death.mp3");
-	sounds.Load(Sound::Explosive, "Assets/Sounds/NotEnoughMoneySound.mp3");
 	sounds.Load(Sound::SellTower, "Assets/Sounds/sell-tower.mp3");
 }
 
