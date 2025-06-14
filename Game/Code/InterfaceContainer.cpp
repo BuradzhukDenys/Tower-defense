@@ -145,11 +145,10 @@ void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 	}
 }
 
-void InterfaceContainer::Update(sf::Time deltaTime, const sf::RenderWindow& window)
+void InterfaceContainer::Update(sf::Time deltaTime, const  sf::Vector2f& mousePosition)
 {
-	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
 	for (const auto& button : buttons) {
-		button->Update(deltaTime, window);
+		button->Update(deltaTime, mousePosition);
 	}
 }
 

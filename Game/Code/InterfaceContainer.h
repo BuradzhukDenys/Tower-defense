@@ -26,7 +26,7 @@ public:
     sf::Vector2f getContainerTextPositionSize(const std::string& text) const;
 
     void handleClick(const sf::Vector2f& mousePos);
-    virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) override;
+    virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition) override;
     bool contains(const sf::Vector2f& point) const;
 private:
     sf::RectangleShape GUI;

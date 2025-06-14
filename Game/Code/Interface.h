@@ -51,11 +51,11 @@ public:
 	static void lostlives();
 
 	static void reset();
-	virtual void Update(sf::Time deltaTime, const sf::RenderWindow& window) = 0;
+	virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition) = 0;
 private:
 	static constexpr int START_WAVE = 1;
-	static constexpr int START_MONEY = 1000;//550
-	static constexpr int START_LIVES = 30;
+	static constexpr int START_MONEY = 550;
+	static constexpr int START_LIVES = 10;
 	static constexpr int MONEY_AFTER_WAVE = 85;
 	static TowerType selectedTower;
 	static int currentWave;
