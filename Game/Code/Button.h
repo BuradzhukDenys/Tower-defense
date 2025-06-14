@@ -45,6 +45,7 @@ private:
     bool isClicked(const sf::Vector2f& mousePos) const;
     sf::RectangleShape buttonShape;
     sf::Text buttonText;
+    sf::Color buttonColor;
     ButtonType buttonType = ButtonType::None;
     const float BASE_BUTTON_FONT = 50.f;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
