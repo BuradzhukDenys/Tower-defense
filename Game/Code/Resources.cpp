@@ -1,14 +1,24 @@
 #include "Resources.h"
+#include <SFML/Graphics/Image.hpp>
 
 ResourceManager<sf::Texture, Resources::Texture> Resources::textures;
 ResourceManager<sf::Font, Resources::Font> Resources::fonts;
 ResourceManager<sf::SoundBuffer, Resources::Sound> Resources::sounds;
+ResourceManager<sf::Music, Resources::Music> Resources::music;
+sf::Image Resources::icon;
 
 void Resources::Initialize()
 {
 	InitializeTextures();
 	InitializeFonts();
 	InitializeSounds();
+	InitializeMusic();
+	InitializeIcon();
+}
+
+const sf::Image& Resources::getIcon()
+{
+	return icon;
 }
 
 void Resources::InitializeTextures()
@@ -33,4 +43,22 @@ void Resources::InitializeFonts()
 void Resources::InitializeSounds()
 {
 	sounds.Load(Sound::NotEnoughMoney, "Assets/Sounds/NotEnoughMoneySound.mp3");
+	sounds.Load(Sound::GoblinDeath, "Assets/Sounds/goblin-death.mp3");
+	sounds.Load(Sound::OrcDeath, "Assets/Sounds/orc-death.mp3");
+	sounds.Load(Sound::WolfDeath, "Assets/Sounds/wolf-death.mp3");
+	sounds.Load(Sound::Explosive, "Assets/Sounds/NotEnoughMoneySound.mp3");
+	sounds.Load(Sound::SellTower, "Assets/Sounds/sell-tower.mp3");
+}
+
+void Resources::InitializeIcon()
+{
+	if (!icon.loadFromFile("Assets/Icon/towerDefenseIcon.png"))
+	{
+		return;
+	}
+}
+
+void Resources::InitializeMusic()
+{
+	music.Load(Music::BasicMusic, "Assets/Music/One-Bard-Band.mp3");
 }
