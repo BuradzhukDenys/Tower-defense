@@ -1,4 +1,4 @@
 #TowerType: price damage attackSpeed attackRange canRotate projectileSpeed projectileDuration
-Ballista: 300 23.0 1.3 200.0 1 250 1
-Bomber: 450 42.0 0.65 180.0 1 300 1
-Wizzard: 700 32.0 0.85 215.0 0 400 1.5
+Ballista: 320 30.0 1.3 200.0 1 250 1
+Bomber: 465 34.0 0.65 180.0 1 300 1
+Wizzard: 750 38.0 0.85 215.0 0 400 1.5
