@@ -1,18 +1,24 @@
 #include "Game.h"
 #include "InterfaceContainer.h"
 #include <iostream>
+#include "AOEProjectile.h"
 
 Game::Game(const sf::State& windowState)
 	: windowTitle("Tower defense"),
 	windowSize(sf::VideoMode::getDesktopMode()),
 	window(windowSize, windowTitle, windowState),
 	map(windowSize.size),
-	currentRoundText(Resources::fonts.Get(Resources::Font::BasicFont)),
+	currentWaveText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	moneyText(Resources::fonts.Get(Resources::Font::BasicFont)),
-	livesText(Resources::fonts.Get(Resources::Font::BasicFont))
+	livesText(Resources::fonts.Get(Resources::Font::BasicFont)),
+	music(Resources::music.Get(Resources::Music::BasicMusic))
 {
 	initializeInterface();
 	initializeGameInfo();
+	window.setIcon(Resources::getIcon());
+	music.setLooping(true);
+	music.setVolume(30);
+	music.play();
 }
 
 void Game::Run()
@@ -125,10 +131,9 @@ void Game::placeTower()
 		}
 		else
 		{
-			auto soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::NotEnoughMoney));
-			soundPtr->play();
-
-			sounds.emplace_back(std::move(soundPtr));
+			moneyText.setFillColor(sf::Color::Red);
+			timeToShowMoneyTextColor = 0.3;
+			notEnoughMoney = true;
 		}
 	}
 }
@@ -136,10 +141,10 @@ void Game::placeTower()
 void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, const sf::Vector2f& containerSize, const sf::Vector2f& containerPosition, const sf::Color& containerColor)
 {
 	interface[interfaceType] = std::make_unique<InterfaceContainer>(
-			containerSize,
-			containerPosition,
-			containerColor
-		);
+		containerSize,
+		containerPosition,
+		containerColor
+	);
 }
 
 InterfaceContainer& Game::getInterfaceContainer(const Interface::InterfaceType& interfaceType)
@@ -155,12 +160,6 @@ InterfaceContainer& Game::getInterfaceContainer(const Interface::InterfaceType& 
 	throw std::runtime_error("Not found interface container");
 }
 
-void Game::deleteInterfaceContainer(const Interface::InterfaceType& interfaceType)
-{
-	interface.erase(interfaceType);
-}
-
-//edit
 void Game::initializeInterface()
 {
 	addInterfaceContainer(Interface::InterfaceType::SelectTowerInterface,
@@ -205,44 +204,38 @@ void Game::initializeGameInfo()
 	auto& container = getInterfaceContainer(Interface::InterfaceType::SelectTowerInterface);
 	textPosition = container.getPosition();
 
-	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/" + std::to_string(Interface::getMaxRoudns()));
-	currentRoundText.setCharacterSize(GAME_FONT_SIZE);
-	currentRoundText.setPosition({ textPosition.x - currentRoundText.getGlobalBounds().size.x - MARGIN_BORDERS, MARGIN_ROWS });
+	currentWaveText.setString("Wave: " + std::to_string(Interface::getCurrentWave()) + "/" + std::to_string(Interface::MAX_WAVES));
+	currentWaveText.setCharacterSize(GAME_FONT_SIZE);
+	currentWaveText.setPosition({ textPosition.x - currentWaveText.getGlobalBounds().size.x - MARGIN_BORDERS, MARGIN_ROWS });
 
 	livesText.setString("Lives: " + std::to_string(Interface::getLives()));
 	livesText.setCharacterSize(GAME_FONT_SIZE);
-	livesText.setPosition({ textPosition.x - livesText.getGlobalBounds().size.x - MARGIN_BORDERS, currentRoundText.getPosition().y + currentRoundText.getGlobalBounds().size.y + MARGIN_ROWS });
+	livesText.setPosition({ textPosition.x - livesText.getGlobalBounds().size.x - MARGIN_BORDERS, currentWaveText.getPosition().y + currentWaveText.getGlobalBounds().size.y + MARGIN_ROWS });
 
 	moneyText.setString("Money: " + std::to_string(Interface::getMoney()));
 	moneyText.setCharacterSize(GAME_FONT_SIZE);
 	moneyText.setPosition({ textPosition.x - moneyText.getGlobalBounds().size.x - MARGIN_BORDERS, livesText.getPosition().y + livesText.getGlobalBounds().size.y + MARGIN_ROWS });
 }
 
-void Game::updateGameInfo()
+void Game::updateGameInfo(sf::Time deltaTime)
 {
-	currentRoundText.setString("Round: " + std::to_string(Interface::getCurrentRound()) + "/" + std::to_string(Interface::getMaxRoudns()));
+	currentWaveText.setString("Wave: " + std::to_string(Interface::getCurrentWave()) + "/" + std::to_string(Interface::MAX_WAVES));
 	livesText.setString("Lives: " + std::to_string(Interface::getLives()));
-	moneyText.setString("Money: " + std::to_string(Interface::getMoney()));
-}
 
-void Game::checkEnemyReachedEnd()
-{
-	for (const auto& enemy : enemies)
+	moneyText.setString("Money: " + std::to_string(Interface::getMoney()));
+	if (moneyText.getFillColor() != sf::Color::White)
 	{
-		if (enemy->getPosition().x > map.getMapWidth())
+		timeToShowMoneyTextColor -= deltaTime.asSeconds();
+		if (timeToShowMoneyTextColor <= 0)
 		{
-			enemies.remove(enemy);
-			Interface::lostlives();
-			break;
+			moneyText.setFillColor(sf::Color::White);
 		}
 	}
 }
 
 void Game::checkVictory()
 {
-	if (Interface::getCurrentRound() == Interface::getMaxRoudns() &&
-		(GameState::getState() == GameState::State::Game || GameState::getState() == GameState::State::RoundPlay) &&
-		enemies.empty()/*delete*/)
+	if (Interface::getCurrentWave() == Interface::MAX_WAVES && GameState::getState() == GameState::State::Game)
 	{
 		GameState::setState(GameState::State::Win);
 		addInterfaceContainer(Interface::InterfaceType::WinnerInterface,
@@ -314,9 +307,106 @@ void Game::checkLoss()
 	}
 }
 
+void Game::Pause()
+{
+	if (GameState::getState() == GameState::State::Pause)
+	{
+		addInterfaceContainer(Interface::InterfaceType::PauseInterface,
+			sf::Vector2f(windowSize.size),
+			sf::Vector2f(0, 0),
+			sf::Color(Interface::BASE_BACKGROUND_COLOR)
+		);
+
+		auto& container = getInterfaceContainer(Interface::InterfaceType::PauseInterface);
+		sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
+
+		container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 150.f));
+		container.addButtons(
+			2,//Кількість кнопок
+			std::vector<sf::Vector2f>{//Розміри кнопок
+			sf::Vector2f(350.f, 80.f),
+				sf::Vector2f(350.f, 80.f)
+		},
+			sf::Vector2f(containerCenter),//Позиція першої кнопки
+			std::vector<sf::Color>{//Кольори кнопок
+			sf::Color::Magenta,
+				sf::Color::Magenta
+		},
+			std::vector<std::string>{//Тексти кнопок
+			"Resume",
+				"Exit"
+		},
+			std::vector<Button::ButtonType>{//Типи кнопок
+			Button::ButtonType::Resume,
+				Button::ButtonType::Exit
+		}
+		);
+	}
+}
+
+void Game::playSounds()
+{
+	std::unique_ptr<sf::Sound> soundPtr = nullptr;
+	for (const auto& enemy : enemies)
+	{
+		if (!enemy->isAlive())
+		{
+			switch (enemy->getType())
+			{
+			case Enemy::EnemyType::Goblin:
+				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::GoblinDeath));
+				soundPtr->setVolume(40);
+				break;
+			case Enemy::EnemyType::Orc:
+				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::OrcDeath));
+				soundPtr->setVolume(35);
+				break;
+			case Enemy::EnemyType::Wolf:
+				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::WolfDeath));
+				soundPtr->setVolume(15);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	for (const auto& tower : towers)
+	{
+		for (const auto& projectile : tower->getProjectiles())
+		{
+			if (dynamic_cast<AOEProjectile*>(projectile.get()) && !projectile->isAlive() &&
+				tower->getType() == Tower::TowerType::Bomber)
+			{
+				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::Explosive));
+				soundPtr->setVolume(20);
+				break;
+			}
+		}
+	}
+
+	if (towerSelled)
+	{
+		soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::SellTower));
+		towerSelled = false;
+	}
+
+	if (notEnoughMoney)
+	{
+		soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::NotEnoughMoney));
+		notEnoughMoney = false;
+	}
+
+	if (soundPtr)
+	{
+		soundPtr->play();
+		sounds.emplace_back(std::move(soundPtr));
+	}
+}
+
 void Game::showGameInfo()
 {
-	window.draw(currentRoundText);
+	window.draw(currentWaveText);
 	window.draw(moneyText);
 	window.draw(livesText);
 }
@@ -331,80 +421,27 @@ void Game::Events()
 			window.close();
 		}
 
+		if (event->is<sf::Event::FocusLost>() && (GameState::getState() == GameState::State::Game ||
+			GameState::getState() == GameState::State::WavePlay))
+		{
+			GameState::setState(GameState::State::Pause);
+		}
+
 		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
 			if (keyReleased->scancode == sf::Keyboard::Scan::Escape &&
-				(GameState::getState() == GameState::State::Game || GameState::getState() == GameState::State::RoundPlay))
+				(GameState::getState() == GameState::State::Game || GameState::getState() == GameState::State::WavePlay))
 			{
 				GameState::setState(GameState::State::Pause);
-				addInterfaceContainer(Interface::InterfaceType::PauseInterface,
-					sf::Vector2f(windowSize.size),
-					sf::Vector2f(0, 0),
-					sf::Color(Interface::BASE_BACKGROUND_COLOR)
-				);
-				auto& container = getInterfaceContainer(Interface::InterfaceType::PauseInterface);
-				sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
-
-				container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 150.f));
-				container.addButtons(
-					2,//Кількість кнопок
-					std::vector<sf::Vector2f>{//Розміри кнопок
-					sf::Vector2f(350.f, 80.f),
-						sf::Vector2f(350.f, 80.f)
-				},
-					sf::Vector2f(containerCenter),//Позиція першої кнопки
-					std::vector<sf::Color>{//Кольори кнопок
-					sf::Color::Magenta,
-						sf::Color::Magenta
-				},
-					std::vector<std::string>{//Тексти кнопок
-					"Resume",
-						"Exit"
-				},
-					std::vector<Button::ButtonType>{//Типи кнопок
-					Button::ButtonType::Resume,
-						Button::ButtonType::Exit
-				}
-				);
 			}
 
 			if (keyReleased->scancode == sf::Keyboard::Scancode::Space)
 			{
-				Interface::nextRound();
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadPlus)
-			{
-				Interface::addMoney(25);
-				
-				if (!towers.empty())
+				if (GameState::getState() == GameState::State::Game)
 				{
-					towers.begin()->get()->upgradeAttackSpeed(1, Tower::UpgradeType::additive);
+					WavesManager::startWave();
+					GameState::setState(GameState::State::WavePlay);
 				}
-			}
-			else if (keyReleased->scancode == sf::Keyboard::Scancode::NumpadMinus)
-			{
-				Interface::substractMoney(25);
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::Backspace)
-			{
-				Interface::lostlives();
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::Q)
-			{
-				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Goblin, Resources::Texture::Goblin, map.getStartMap(), EnemiesFrames::GOBLIN_MAX_FRAMES));
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::W)
-			{
-				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Orc, Resources::Texture::Orc, map.getStartMap(), EnemiesFrames::ORC_MAX_FRAMES));
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::E)
-			{
-				enemies.emplace_back(std::make_unique<Enemy>(Enemy::EnemyType::Wolf, Resources::Texture::Wolf, map.getStartMap(), EnemiesFrames::WOLF_MAX_FRAMES));
 			}
 		}
 
@@ -422,11 +459,12 @@ void Game::Events()
 						}
 					}
 				}
+				placeTower();
 
 				switch (GameState::getState())
 				{
 				case GameState::State::Game:
-				case GameState::State::RoundPlay:
+				case GameState::State::WavePlay:
 					if (interface.find(Interface::InterfaceType::PauseInterface) != interface.end())
 					{
 						interface.erase(Interface::InterfaceType::PauseInterface);
@@ -443,6 +481,8 @@ void Game::Events()
 					towers.clear();
 					enemies.clear();
 					GameState::setState(GameState::State::Game);
+					music.stop();
+					music.play();
 					break;
 				case GameState::State::Exit:
 					window.close();
@@ -450,8 +490,6 @@ void Game::Events()
 				default:
 					break;
 				}
-
-				placeTower();
 			}
 			else if (mouseReleased->button == sf::Mouse::Button::Right)
 			{
@@ -459,7 +497,11 @@ void Game::Events()
 				{
 					if (tower->intersects(mousePosition) && !pickableTower)
 					{
+						Interface::addMoney(tower->getPrice() * 0.65f);
+						moneyText.setFillColor(sf::Color::Green);
+						timeToShowMoneyTextColor = 0.3;
 						towers.remove(tower);
+						towerSelled = true;
 						break;
 					}
 				}
@@ -472,27 +514,26 @@ void Game::Events()
 
 void Game::Update(sf::Time deltaTime)
 {
-	if (!enemies.empty())
-	{
-		std::cout << enemies.begin()->get()->getHealth() << "\n";
-	}
+	std::cout << enemies.size() << "\n";
 	if (GameState::getState() != GameState::State::Pause)
 	{
 		for (const auto& enemy : enemies)
 		{
-			if (enemy)
+			enemy->Update(deltaTime, mousePosition, enemies);
+			map.updateTurnEnemy(*enemy);
+			if (!enemy->isAlive())
 			{
-				enemy->Update(deltaTime, mousePosition, enemies);
-				map.updateTurnEnemy(*enemy);
-				if (!enemy->isAlive())
-				{
-					Interface::addMoney(enemy->getMoneyReward());
-					enemies.remove(enemy);
-					break;
-				}
+				Interface::addMoney(enemy->getMoneyReward());
+				enemies.remove(enemy);
+				break;
+			}
+			if (enemy->getPosition().x > map.getMapWidth())
+			{
+				Interface::lostlives();
+				enemies.remove(enemy);
+				break;
 			}
 		}
-		checkEnemyReachedEnd();
 
 		updatePickableTower();
 		for (auto& tower : towers)
@@ -500,18 +541,24 @@ void Game::Update(sf::Time deltaTime)
 			tower->Update(deltaTime, mousePosition, enemies);
 		}
 
-		updateGameInfo();
+		updateGameInfo(deltaTime);
+
+		if (GameState::getState() == GameState::State::WavePlay)
+		{
+			WavesManager::Update(deltaTime, enemies, map);
+		}
 	}
 	mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
 	checkVictory();
 	checkLoss();
-
+	Pause();
 	for (auto& interfaceComponent : interface)
 	{
 		interfaceComponent.second->Update(deltaTime, window);
 	}
 
+	playSounds();
 	sounds.remove_if(
 		[](const std::unique_ptr<sf::Sound>& sound)
 		{
