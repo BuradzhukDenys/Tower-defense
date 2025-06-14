@@ -38,7 +38,7 @@ public:
     const ButtonType& getButtonType();
     void setScale(const sf::Vector2f& scale);
 
-    void Update(sf::Time deltaTime, const sf::RenderWindow& window);
+    void Update(sf::Time deltaTime, const  sf::Vector2f& mousePosition);
 private:
     friend class InterfaceContainer;
     

@@ -68,14 +68,20 @@ void Button::setScale(const sf::Vector2f& scale)
 	buttonShape.setScale(scale);
 }
 
-void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)
+void Button::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition)
 {
-	if (isClicked(sf::Vector2f(sf::Mouse::getPosition(window))))
+	if (isClicked(mousePosition))
 	{
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
 	}
-	else if (Interface::getSelectedTower() == Interface::TowerType::Ballista && buttonType == Button::ButtonType::Ballista)
+	else
+	{
+		buttonShape.setOutlineThickness(0.f);
+		buttonShape.setOutlineColor(sf::Color::Transparent);
+	}
+
+	if (Interface::getSelectedTower() == Interface::TowerType::Ballista && buttonType == Button::ButtonType::Ballista)
 	{
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
@@ -90,7 +96,8 @@ void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
 	}
-	else if (GameState::getState() == GameState::State::WavePlay && buttonType == Button::ButtonType::Play)
+	
+	if (GameState::getState() == GameState::State::WavePlay && buttonType == Button::ButtonType::Play)
 	{
 		buttonShape.setFillColor(sf::Color(100, 100, 100));
 		buttonShape.setOutlineThickness(-5.f);
@@ -99,9 +106,8 @@ void Button::Update(sf::Time deltaTime, const sf::RenderWindow& window)
 	else
 	{
 		buttonShape.setFillColor(buttonColor);
-		buttonShape.setOutlineThickness(0.f);
-		buttonShape.setOutlineColor(sf::Color::Transparent);
 	}
+	
 }
 
 void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
