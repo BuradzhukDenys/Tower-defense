@@ -30,7 +30,6 @@ private:
 	const float MARGIN_BORDERS = 45.f;
 
 	Map map;
-	float timeBetweenSpawnEnemy = 0;
 	float timeToShowMoneyTextColor = 0.3;
 
 	std::list<std::unique_ptr<Tower>> towers;

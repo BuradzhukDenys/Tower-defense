@@ -41,6 +41,13 @@ void WavesManager::Update(sf::Time deltaTime, std::list<std::unique_ptr<Enemy>>&
 			GameState::setStateBeforePause(GameState::State::Game);
 			Interface::addMoney(Interface::getMoneyAfterWave());
 			Interface::nextWave();
+
+			if (Interface::getCurrentWave() == Interface::MAX_WAVES && GameState::getState() == GameState::State::Game)
+			{
+				GameState::setState(GameState::State::Win);
+				return;
+			}
+
 			return;
 		}
 	}

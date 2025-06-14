@@ -10,9 +10,10 @@
 #include "AOEProjectile.h"
 #include "StandartProjectile.h"
 #include "piercingProjectile.h"
+#include "Effects.h"
 
-const sf::Color Tower::BASE_ATTACK_RADIUS_COLOR = sf::Color(90, 90, 90, 40);
-const sf::Color Tower::WRONG_PLACE_TOWER_RADIUS_COLOR = sf::Color(255, 0, 0, 40);
+const sf::Color Tower::BASE_ATTACK_RADIUS_COLOR = sf::Color(90, 90, 90, 65);
+const sf::Color Tower::WRONG_PLACE_TOWER_RADIUS_COLOR = sf::Color(255, 0, 0, 65);
 std::map<Tower::TowerType, Tower::TowerStats> Tower::towerStatsMap;
 
 Tower::Tower(const TowerType type, Resources::Texture textureID, const sf::Vector2f& position, const int framesCount)

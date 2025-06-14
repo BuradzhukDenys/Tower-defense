@@ -17,7 +17,7 @@ Game::Game(const sf::State& windowState)
 	initializeGameInfo();
 	window.setIcon(Resources::getIcon());
 	music.setLooping(true);
-	music.setVolume(30);
+	music.setVolume(25);
 	music.play();
 }
 
@@ -235,9 +235,8 @@ void Game::updateGameInfo(sf::Time deltaTime)
 
 void Game::checkVictory()
 {
-	if (Interface::getCurrentWave() == Interface::MAX_WAVES && GameState::getState() == GameState::State::Game)
+	if (GameState::getState() == GameState::State::Win && GameState::getState() != GameState::State::Loss)
 	{
-		GameState::setState(GameState::State::Win);
 		addInterfaceContainer(Interface::InterfaceType::WinnerInterface,
 			sf::Vector2f(windowSize.size),
 			sf::Vector2f(0, 0),
@@ -320,24 +319,28 @@ void Game::Pause()
 		auto& container = getInterfaceContainer(Interface::InterfaceType::PauseInterface);
 		sf::Vector2f containerCenter = (container.getSize() / 2.f) + container.getPosition();
 
-		container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 150.f));
+		container.addContainerText("Pause", sf::Vector2f(containerCenter.x, containerCenter.y - 220.f));
 		container.addButtons(
-			2,//Кількість кнопок
+			3,//Кількість кнопок
 			std::vector<sf::Vector2f>{//Розміри кнопок
 			sf::Vector2f(350.f, 80.f),
+				sf::Vector2f(350.f, 80.f),
 				sf::Vector2f(350.f, 80.f)
 		},
 			sf::Vector2f(containerCenter),//Позиція першої кнопки
 			std::vector<sf::Color>{//Кольори кнопок
 			sf::Color::Magenta,
+				sf::Color::Magenta,
 				sf::Color::Magenta
 		},
 			std::vector<std::string>{//Тексти кнопок
 			"Resume",
+				"Restart",
 				"Exit"
 		},
 			std::vector<Button::ButtonType>{//Типи кнопок
 			Button::ButtonType::Resume,
+				Button::ButtonType::Restart,
 				Button::ButtonType::Exit
 		}
 		);
@@ -366,20 +369,6 @@ void Game::playSounds()
 				soundPtr->setVolume(15);
 				break;
 			default:
-				break;
-			}
-		}
-	}
-
-	for (const auto& tower : towers)
-	{
-		for (const auto& projectile : tower->getProjectiles())
-		{
-			if (dynamic_cast<AOEProjectile*>(projectile.get()) && !projectile->isAlive() &&
-				tower->getType() == Tower::TowerType::Bomber)
-			{
-				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::Explosive));
-				soundPtr->setVolume(20);
 				break;
 			}
 		}
@@ -415,7 +404,6 @@ void Game::Events()
 {
 	while (const std::optional event = window.pollEvent())
 	{
-		//delete
 		if (event->is<sf::Event::Closed>())
 		{
 			window.close();
@@ -472,10 +460,12 @@ void Game::Events()
 					break;
 				case GameState::State::Restart:
 					if (interface.find(Interface::InterfaceType::WinnerInterface) != interface.end() ||
-						interface.find(Interface::InterfaceType::LoserInterface) != interface.end())
+						interface.find(Interface::InterfaceType::LoserInterface) != interface.end() ||
+						interface.find(Interface::InterfaceType::PauseInterface) != interface.end())
 					{
 						interface.erase(Interface::InterfaceType::WinnerInterface);
 						interface.erase(Interface::InterfaceType::LoserInterface);
+						interface.erase(Interface::InterfaceType::PauseInterface);
 					}
 					Interface::reset();
 					towers.clear();
@@ -514,7 +504,6 @@ void Game::Events()
 
 void Game::Update(sf::Time deltaTime)
 {
-	std::cout << enemies.size() << "\n";
 	if (GameState::getState() != GameState::State::Pause)
 	{
 		for (const auto& enemy : enemies)
@@ -555,7 +544,7 @@ void Game::Update(sf::Time deltaTime)
 	Pause();
 	for (auto& interfaceComponent : interface)
 	{
-		interfaceComponent.second->Update(deltaTime, window);
+		interfaceComponent.second->Update(deltaTime, mousePosition);
 	}
 
 	playSounds();
