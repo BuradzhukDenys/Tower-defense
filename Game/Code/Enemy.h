@@ -35,7 +35,10 @@ public:
     int getMoneyReward() const;
     bool isAlive() const;
 
+    Enemy::EnemyType& getType();
     float getHealth() const;//delete
+    void piersed(bool wasPiersed);
+    bool wasPiersed() const;
 
     void updateHealthBar();
     virtual void playAnimation(sf::Time deltaTime) override;
@@ -54,10 +57,12 @@ private:
     float moveSpeed = 0;
     float animationSpeed = 0.25;
 
+    EnemyType type;
     Direction direction;
     float distancePerFrame = 6.f;
     float distanceForLastFrame = 0.f;
     bool enemyIsAlive = true;
+    bool piersedEnemy = false;
 
     int maxHealthPoints;
     sf::RectangleShape healthBar;
