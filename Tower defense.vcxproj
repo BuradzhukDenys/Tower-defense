@@ -29,36 +29,40 @@
     <Font Include="Game\Assets\Fonts\arial.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\Code\Main\Button.cpp" />
-    <ClCompile Include="Game\Code\Main\Enemy.cpp" />
-    <ClCompile Include="Game\Code\Main\Entity.cpp" />
-    <ClCompile Include="Game\Code\Main\Game.cpp" />
-    <ClCompile Include="Game\Code\Main\GameState.cpp" />
-    <ClCompile Include="Game\Code\Main\main.cpp" />
-    <ClCompile Include="Game\Code\Main\Map.cpp" />
-    <ClCompile Include="Game\Code\Main\Tower.cpp" />
-    <ClCompile Include="Game\Code\Main\Projectile.cpp" />
-    <ClCompile Include="Game\Code\Main\Resources.cpp" />
-    <ClCompile Include="Game\Code\Main\Interface.cpp" />
-    <ClCompile Include="Game\Code\Main\InterfaceContainer.cpp" />
-    <ClCompile Include="Game\Code\Main\piercingProjectile.cpp" />
-    <ClCompile Include="Game\Code\Main\AOEProjectile.cpp" />
+    <ClCompile Include="Game\Code\AOEProjectile.cpp" />
+    <ClCompile Include="Game\Code\Button.cpp" />
+    <ClCompile Include="Game\Code\Enemy.cpp" />
+    <ClCompile Include="Game\Code\Entity.cpp" />
+    <ClCompile Include="Game\Code\Game.cpp" />
+    <ClCompile Include="Game\Code\GameState.cpp" />
+    <ClCompile Include="Game\Code\main.cpp" />
+    <ClCompile Include="Game\Code\Map.cpp" />
+    <ClCompile Include="Game\Code\piercingProjectile.cpp" />
+    <ClCompile Include="Game\Code\Tower.cpp" />
+    <ClCompile Include="Game\Code\Projectile.cpp" />
+    <ClCompile Include="Game\Code\Resources.cpp" />
+    <ClCompile Include="Game\Code\Interface.cpp" />
+    <ClCompile Include="Game\Code\InterfaceContainer.cpp" />
+    <ClCompile Include="Game\Code\StandartProjectile.cpp" />
+    <ClCompile Include="Game\Code\Main\WavesManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\Code\Main\GameState.h" />
-    <ClInclude Include="Game\Code\Main\Button.h" />
-    <ClInclude Include="Game\Code\Main\Enemy.h" />
-    <ClInclude Include="Game\Code\Main\Entity.h" />
-    <ClInclude Include="Game\Code\Main\Game.h" />
-    <ClInclude Include="Game\Code\Main\Map.h" />
-    <ClInclude Include="Game\Code\Main\Tower.h" />
-    <ClInclude Include="Game\Code\Main\Projectile.h" />
+    <ClInclude Include="Game\Code\AOEProjectile.h" />
+    <ClInclude Include="Game\Code\GameState.h" />
+    <ClInclude Include="Game\Code\Button.h" />
+    <ClInclude Include="Game\Code\Enemy.h" />
+    <ClInclude Include="Game\Code\Entity.h" />
+    <ClInclude Include="Game\Code\Game.h" />
+    <ClInclude Include="Game\Code\Map.h" />
+    <ClInclude Include="Game\Code\piercingProjectile.h" />
+    <ClInclude Include="Game\Code\Tower.h" />
+    <ClInclude Include="Game\Code\Projectile.h" />
     <ClInclude Include="Game\Code\Tools\ResourceManager.h" />
-    <ClInclude Include="Game\Code\Main\Resources.h" />
-    <ClInclude Include="Game\Code\Main\Interface.h" />
-    <ClInclude Include="Game\Code\Main\InterfaceContainer.h" />
-    <ClInclude Include="Game\Code\Main\piercingProjectile.h" />
-    <ClInclude Include="Game\Code\Main\AOEProjectile.h" />
+    <ClInclude Include="Game\Code\Resources.h" />
+    <ClInclude Include="Game\Code\Interface.h" />
+    <ClInclude Include="Game\Code\InterfaceContainer.h" />
+    <ClInclude Include="Game\Code\StandartProjectile.h" />
+    <ClInclude Include="Game\Code\Main\WavesManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Game\Code\Stats\Enemies.txt" />
