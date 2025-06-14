@@ -1,7 +1,7 @@
 #include "Interface.h"
 #include <iostream>
 
-int Interface::currentRound = Interface::START_ROUND;
+int Interface::currentWave = Interface::START_WAVE;
 int Interface::money = Interface::START_MONEY;
 int Interface::lives = Interface::START_LIVES;
 Interface::TowerType Interface::selectedTower = Interface::TowerType::None;
@@ -9,9 +9,9 @@ const sf::Color Interface::BASE_BACKGROUND_COLOR = sf::Color(0, 0, 0, 50);
 
 Interface::~Interface() {}
 
-int Interface::getCurrentRound()
+int Interface::getCurrentWave()
 {
-	return currentRound;
+	return currentWave;
 }
 
 int Interface::getMoney()
@@ -24,16 +24,16 @@ int Interface::getLives()
 	return lives;
 }
 
-int Interface::getMaxRoudns()
+int Interface::getMoneyAfterWave()
 {
-	return MAX_ROUNDS;
+	return MONEY_AFTER_WAVE;
 }
 
-void Interface::nextRound()
+void Interface::nextWave()
 {
-	if (currentRound < MAX_ROUNDS)
+	if (currentWave < MAX_WAVES)
 	{
-		currentRound++;
+		currentWave++;
 	}
 }
 
@@ -70,7 +70,7 @@ void Interface::setSelectedTower(TowerType towerType)
 
 void Interface::reset()
 {
-	currentRound = START_ROUND;
+	currentWave = START_WAVE;
 	money = START_MONEY;
 	lives = START_LIVES;
 }
