@@ -35,34 +35,34 @@
     <ClCompile Include="Game\Code\Entity.cpp" />
     <ClCompile Include="Game\Code\Game.cpp" />
     <ClCompile Include="Game\Code\GameState.cpp" />
+    <ClCompile Include="Game\Code\Interface.cpp" />
+    <ClCompile Include="Game\Code\InterfaceContainer.cpp" />
     <ClCompile Include="Game\Code\main.cpp" />
     <ClCompile Include="Game\Code\Map.cpp" />
     <ClCompile Include="Game\Code\piercingProjectile.cpp" />
-    <ClCompile Include="Game\Code\Tower.cpp" />
     <ClCompile Include="Game\Code\Projectile.cpp" />
     <ClCompile Include="Game\Code\Resources.cpp" />
-    <ClCompile Include="Game\Code\Interface.cpp" />
-    <ClCompile Include="Game\Code\InterfaceContainer.cpp" />
     <ClCompile Include="Game\Code\StandartProjectile.cpp" />
-    <ClCompile Include="Game\Code\Main\WavesManager.cpp" />
+    <ClCompile Include="Game\Code\Tower.cpp" />
+    <ClCompile Include="Game\Code\WavesManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Code\AOEProjectile.h" />
-    <ClInclude Include="Game\Code\GameState.h" />
     <ClInclude Include="Game\Code\Button.h" />
     <ClInclude Include="Game\Code\Enemy.h" />
     <ClInclude Include="Game\Code\Entity.h" />
     <ClInclude Include="Game\Code\Game.h" />
-    <ClInclude Include="Game\Code\Map.h" />
-    <ClInclude Include="Game\Code\piercingProjectile.h" />
-    <ClInclude Include="Game\Code\Tower.h" />
-    <ClInclude Include="Game\Code\Projectile.h" />
-    <ClInclude Include="Game\Code\Tools\ResourceManager.h" />
-    <ClInclude Include="Game\Code\Resources.h" />
+    <ClInclude Include="Game\Code\GameState.h" />
     <ClInclude Include="Game\Code\Interface.h" />
     <ClInclude Include="Game\Code\InterfaceContainer.h" />
+    <ClInclude Include="Game\Code\Map.h" />
+    <ClInclude Include="Game\Code\piercingProjectile.h" />
+    <ClInclude Include="Game\Code\Projectile.h" />
+    <ClInclude Include="Game\Code\Resources.h" />
     <ClInclude Include="Game\Code\StandartProjectile.h" />
-    <ClInclude Include="Game\Code\Main\WavesManager.h" />
+    <ClInclude Include="Game\Code\Tools\ResourceManager.h" />
+    <ClInclude Include="Game\Code\Tower.h" />
+    <ClInclude Include="Game\Code\WavesManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Game\Code\Stats\Enemies.txt" />
