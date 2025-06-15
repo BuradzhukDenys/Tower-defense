@@ -362,3 +362,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Game/Code1/WavesManager.cpp
+/.gitattributes
+/.gitignore
+/Tower defense.sln
+/Tower defense.vcxproj
+/Tower defense.vcxproj.filters
