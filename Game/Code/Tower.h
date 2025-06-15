@@ -1,9 +1,6 @@
 #pragma once
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 #include "Entity.h"
 #include "Projectile.h"
-#include "InterfaceContainer.h"
 #include <map>
 
 namespace TowersFrames
@@ -22,37 +19,27 @@ public:
 		Bomber,
 		Wizzard
 	};
-
-	enum class UpgradeType
-	{
-		multiplier,
-		additive
-	};
+	static const sf::Color BASE_ATTACK_RADIUS_COLOR;
+	static const sf::Color WRONG_PLACE_TOWER_RADIUS_COLOR;
 
 	Tower(const TowerType type, Resources::Texture textureID, const sf::Vector2f& position, const int framesCount = 1);
 
-	sf::Angle getRotateAngleToEnemy() const;
 	void shoot();
 	void Attack(const std::list<std::unique_ptr<Enemy>>& enemies);
-	bool intersects(const sf::FloatRect& rect) const;
-	bool intersects(const Tower& other) const;
-	bool intersects(const sf::Vector2f& point) const;
-	bool inRadius(const sf::Vector2f& point) const;
+	bool intersects(const sf::FloatRect& rect) const;//Перевіряємо, чи вежа пересікається з прямокутником
+	bool intersects(const Tower& other) const;//Перевіряємо, чи вежа пересікається з іншою вежою
+	bool intersects(const sf::Vector2f& point) const;//Перевіряємо, чи вежа пересікається з точкою
+	bool inRadius(const sf::Vector2f& point) const;//Перевіряємо чи точка знаходиться в радіусі
+	sf::Angle getRotateAngleToEnemy() const;
 
-	std::list<std::unique_ptr<Projectile>>& getProjectiles();
 	float getDamage() const;
-	int getPrice() const;
 	TowerType getType() const;
+	int getPrice() const;
 	static int getPrice(TowerType type);
-	void upgradeDamage(const float damageValue, const UpgradeType& bonusType);
-	void upgradeAttackSpeed(const float AttackSpeedValue, const UpgradeType& bonusType);
-	void upgradeRange(const float RangeValue, const UpgradeType& bonusType);
 	void setRadiusColor(const sf::Color& color);
 	void showRadius();
-
-	static const sf::Color BASE_ATTACK_RADIUS_COLOR;
-	static const sf::Color WRONG_PLACE_TOWER_RADIUS_COLOR;
 	
+	void changeTower(TowerType type);
 	virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies) override;
 	virtual void playAnimation(sf::Time deltaTime) override;
 
@@ -76,16 +63,16 @@ private:
 	float timeBetweenShots = 0.f;
 	bool isActive = false;
 	bool canRotate = true;
-	float projectileSpeed;
-	float projectileDuration;
-	sf::Angle rotateAngleToEnemy;
+	float projectileSpeed = 0.f;
+	float projectileDuration = 0.f;
+	sf::Angle rotateAngleToEnemy;//Кут повроту до ворога
 
 	TowerType towerType;
 	sf::CircleShape radius;
 	std::list<std::unique_ptr<Projectile>> projectiles;
 	static std::map<TowerType, TowerStats> towerStatsMap;
-	static constexpr float BOMBER_AOE_RADIUS = 90.f;
-	static constexpr int WIZZARD_PIERCING_NUMBER = 4;
+	static constexpr float BOMBER_AOE_RADIUS = 85.f;
+	static constexpr int WIZZARD_PIERCING_NUMBER = 3;
 
 	Enemy* getFrontEnemy(const std::list<std::unique_ptr<Enemy>>& enemies);
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

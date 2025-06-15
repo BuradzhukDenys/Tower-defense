@@ -1,16 +1,9 @@
 #include "Tower.h"
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include <SFML/System/Time.hpp>
 #include <fstream>
-#include <string>
 #include <sstream>
-#include <iostream>
 #include "AOEProjectile.h"
 #include "StandartProjectile.h"
 #include "piercingProjectile.h"
-#include "Effects.h"
 
 const sf::Color Tower::BASE_ATTACK_RADIUS_COLOR = sf::Color(90, 90, 90, 65);
 const sf::Color Tower::WRONG_PLACE_TOWER_RADIUS_COLOR = sf::Color(255, 0, 0, 65);
@@ -35,7 +28,6 @@ Tower::Tower(const TowerType type, Resources::Texture textureID, const sf::Vecto
 	else
 		throw std::runtime_error("No stats found for this tower type");
 
-	sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 	sprite.setOrigin(sf::Vector2f(sprite.getGlobalBounds().getCenter()));
 	sprite.setPosition(position);
 
@@ -43,6 +35,48 @@ Tower::Tower(const TowerType type, Resources::Texture textureID, const sf::Vecto
 	radius.setOrigin(radius.getGeometricCenter());
 	radius.setPosition(sprite.getPosition());
 	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);
+}
+
+void Tower::changeTower(TowerType type)
+{
+	//Міняємо характеристики, відповідно до типу
+	auto it = towerStatsMap.find(type);
+	if (it != towerStatsMap.end())
+	{
+		const TowerStats& stats = it->second;
+		price = stats.price;
+		damage = stats.damage;
+		attackSpeed = stats.attackSpeed;
+		attackRange = stats.attackRange;
+		canRotate = stats.canRotate;
+		projectileSpeed = stats.projectileSpeed;
+		projectileDuration = stats.projectileDuration;
+		animationSpeed = (1.f / attackSpeed) / (framesCount + 1);
+	}
+	else
+		throw std::runtime_error("No stats found for this tower type");
+
+	//В залежності від типу міняємо текстуру, та кількість кадрів, міняємо радіус та його центр
+	this->towerType = type;
+	switch (this->towerType)
+	{
+	case Tower::TowerType::Ballista:
+		this->sprite.setTexture(Resources::textures.Get(Resources::Texture::Ballista));
+		this->framesCount = TowersFrames::BALLISTA_MAX_FRAMES;
+		break;
+	case Tower::TowerType::Bomber:
+		this->sprite.setTexture(Resources::textures.Get(Resources::Texture::Bomber));
+		this->framesCount = TowersFrames::BOMBER_MAX_FRAMES;
+		break;
+	case Tower::TowerType::Wizzard:
+		this->sprite.setTexture(Resources::textures.Get(Resources::Texture::Wizzard));
+		this->framesCount = TowersFrames::WIZZARD_MAX_FRAMES;
+		break;
+	default:
+		break;
+	}
+	this->radius.setRadius(attackRange);
+	radius.setOrigin(radius.getGeometricCenter());
 }
 
 void Tower::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies)
@@ -53,7 +87,6 @@ void Tower::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const 
 	{
 		shot->Update(deltaTime, mousePosition, enemies);
 	}
-
 	projectiles.remove_if(
 		[](const std::unique_ptr<Projectile>& projectile) {
 			return !projectile->isAlive();
@@ -61,17 +94,18 @@ void Tower::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const 
 	);
 
 	Attack(enemies);
-
 	if (isAnimationPlaying)
 	{
 		playAnimation(deltaTime);
 	}
 
+	//Якщо вежа пересікається з курсором, показуємо радіус
 	isActive = intersects(mousePosition);
 }
 
 void Tower::playAnimation(sf::Time deltaTime)
 {
+	//Програємо анімацію перезарядки та стрільби
 	timeForLastAnimationPlay += deltaTime.asSeconds();
 	if (timeForLastAnimationPlay >= animationSpeed)
 	{
@@ -91,11 +125,6 @@ void Tower::playAnimation(sf::Time deltaTime)
 			sprite.setTextureRect(sf::IntRect({ 0, 0 }, frameSize));
 		}
 	}
-}
-
-sf::Angle Tower::getRotateAngleToEnemy() const
-{
-	return rotateAngleToEnemy;
 }
 
 void Tower::shoot()
@@ -148,6 +177,7 @@ void Tower::Attack(const std::list<std::unique_ptr<Enemy>>& enemies)
 	{
 		sf::Vector2f towerPosition(sprite.getPosition());
 		sf::Vector2f distanceToEnemy = targetEnemy->getSprite().getGlobalBounds().getCenter() - towerPosition;
+		//Визначаємо кут повроту до ворога через дистанцію між вежою та ворогом
 		float angleInRadians = std::atan2(distanceToEnemy.y, distanceToEnemy.x);
 		rotateAngleToEnemy = sf::radians(angleInRadians);
 
@@ -165,9 +195,11 @@ bool Tower::intersects(const sf::FloatRect& rect) const
 	sf::Vector2f center = sprite.getGlobalBounds().getCenter();
 	float radius = sprite.getGlobalBounds().size.x / 2.f;
 
+	//Визначаэмо найближчу точку прямокутника до вежі
 	float nearestX = std::max(rect.position.x, std::min(center.x, rect.position.x + rect.size.x));
 	float nearestY = std::max(rect.position.y, std::min(center.y, rect.position.y + rect.size.y));
 
+	//Дистанція між вежою та точкою з прямокутника
 	float dx = center.x - nearestX;
 	float dy = center.y - nearestY;
 	float distance = std::sqrt(dx * dx + dy * dy);
@@ -183,6 +215,7 @@ bool Tower::intersects(const Tower& other) const
 	float radiusA = sprite.getGlobalBounds().size.x / 2.0f;
 	float radiusB = other.sprite.getGlobalBounds().size.x / 2.0f;
 
+	//Дистанція між вежами
 	float dx = centerA.x - centerB.x;
 	float dy = centerA.y - centerB.y;
 	float distance = std::sqrt(dx * dx + dy * dy);
@@ -195,6 +228,7 @@ bool Tower::intersects(const sf::Vector2f& point) const
 	sf::Vector2f center = sprite.getGlobalBounds().getCenter();
 	float radius = sprite.getGlobalBounds().size.x / 2.f;
 
+	//Дистанція між точкою і вежою
 	float dx = point.x - center.x;
 	float dy = point.y - center.y;
 	float distance = std::sqrt(dx * dx + dy * dy);
@@ -207,19 +241,9 @@ bool Tower::inRadius(const sf::Vector2f& point) const
 	return radius.getGlobalBounds().contains(point);
 }
 
-std::list<std::unique_ptr<Projectile>>& Tower::getProjectiles()
-{
-	return projectiles;
-}
-
 float Tower::getDamage() const
 {
 	return damage;
-}
-
-int Tower::getPrice() const
-{
-	return price;
 }
 
 Tower::TowerType Tower::getType() const
@@ -227,54 +251,14 @@ Tower::TowerType Tower::getType() const
 	return towerType;
 }
 
+int Tower::getPrice() const
+{
+	return price;
+}
+
 int Tower::getPrice(TowerType type)
 {
 	return towerStatsMap[type].price;
-}
-
-void Tower::upgradeDamage(const float damageValue, const UpgradeType& bonusType)
-{
-	switch (bonusType)
-	{
-	case UpgradeType::multiplier:
-		this->damage *= damageValue;
-		break;
-	case UpgradeType::additive:
-		this->damage += damageValue;
-		break;
-	default:
-		break;
-	}
-}
-
-void Tower::upgradeAttackSpeed(const float AttackSpeedValue, const UpgradeType& bonusType)
-{
-	switch (bonusType)
-	{
-	case UpgradeType::multiplier:
-		this->attackSpeed *= AttackSpeedValue;
-		break;
-	case UpgradeType::additive:
-		this->attackSpeed += AttackSpeedValue;
-		break;
-	default:
-		break;
-	}
-}
-
-void Tower::upgradeRange(const float RangeValue, const UpgradeType& bonusType)
-{
-	switch (bonusType)
-	{
-	case UpgradeType::multiplier:
-		this->attackRange *= RangeValue;
-		break;
-	case UpgradeType::additive:
-		this->attackRange += RangeValue;
-		break;
-	default:
-		break;
-	}
 }
 
 void Tower::setRadiusColor(const sf::Color& color)
@@ -286,7 +270,12 @@ void Tower::showRadius()
 {
 	isActive = true;
 	radius.setFillColor(BASE_ATTACK_RADIUS_COLOR);
-	radius.setPosition(this->getPosition());
+	radius.setPosition(sprite.getPosition());
+}
+
+sf::Angle Tower::getRotateAngleToEnemy() const
+{
+	return rotateAngleToEnemy;
 }
 
 void Tower::initializeTowersStats()
@@ -305,6 +294,7 @@ void Tower::initializeTowersStats()
 		std::string towerName;
 		lineStream >> towerName;
 
+		//Пропускаємо коментарі, які починаються з '#', пусті рядки
 		if (line.empty() || line[0] == '#') continue;
 		if (!towerName.empty() && towerName.back() == ':')
 			towerName.pop_back();
@@ -350,9 +340,11 @@ Enemy* Tower::getFrontEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
 			}
 			else
 			{
+				//Визначаємо позицію ворога в контейнері ворогів, та ворога, який перший зайшов в радіус
 				const sf::Vector2f& enemyPos = enemy->getPosition();
 				const sf::Vector2f& frontEnemyPos = frontEnemy->getPosition();
 
+				//В залежності від напрямку ворога, перевіряємо відповідні координати ворога, та першого ворга
 				if (frontEnemy->getDirection() == Enemy::Direction::Right && enemyPos.x > frontEnemyPos.x)
 				{
 					frontEnemy = enemy.get();
@@ -374,6 +366,7 @@ Enemy* Tower::getFrontEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
 
 void Tower::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+	//Перевизначений віртуальний метод, для малювання вежі, снарядів та радіуса
 	target.draw(sprite, states);
 	for (auto& shot : projectiles)
 	{
