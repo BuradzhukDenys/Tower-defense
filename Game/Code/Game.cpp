@@ -441,7 +441,12 @@ void Game::Events()
 		if (event->is<sf::Event::FocusLost>() && (GameState::getState() == GameState::State::Game ||
 			GameState::getState() == GameState::State::WavePlay))
 		{
+			music.pause();
 			GameState::setState(GameState::State::Pause);
+		}
+		else if (event->is<sf::Event::FocusGained>())
+		{
+			music.play();
 		}
 
 		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
