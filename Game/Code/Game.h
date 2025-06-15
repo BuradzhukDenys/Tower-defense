@@ -1,12 +1,12 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include "Tower.h"
+#include <map>
 #include "Interface.h"
-#include "Map.h"
+#include "InterfaceContainer.h"
+#include "Tower.h"
 #include "Enemy.h"
+#include "Map.h"
 #include "GameState.h"
 #include "WavesManager.h"
-#include <map>
 
 class Game
 {
@@ -28,16 +28,18 @@ private:
 	const int GAME_FONT_SIZE = 35;
 	const float MARGIN_ROWS = 10.f;
 	const float MARGIN_BORDERS = 45.f;
+	float timeToShowMoneyTextColor = 0.3;
+	sf::Text fps;//delete
+	sf::Text control;
 
 	Map map;
-	float timeToShowMoneyTextColor = 0.3;
 
-	std::list<std::unique_ptr<Tower>> towers;
-	std::map<Interface::InterfaceType, std::unique_ptr<Interface>> interface;
-	std::list<std::unique_ptr<Enemy>> enemies;
-	std::list<std::unique_ptr<sf::Sound>> sounds;
-	sf::Music& music;
 	std::unique_ptr<Tower> pickableTower = nullptr;
+	std::list<std::unique_ptr<Tower>> towers;
+	std::list<std::unique_ptr<Enemy>> enemies;
+	sf::Music& music;
+	std::list<std::unique_ptr<sf::Sound>> sounds;
+	std::map<Interface::InterfaceType, std::unique_ptr<Interface>> interface;
 
 	bool notEnoughMoney = false;
 	bool towerSelled = false;
@@ -57,7 +59,8 @@ private:
 	void checkVictory();
 	void checkLoss();
 	void Pause();
-	void playSounds();
+	void playSound(const Resources::Sound soundId, float volume);
+	void SoundsManager();
 	void showGameInfo();
 
 	void Events();

@@ -1,24 +1,29 @@
 #include "Game.h"
-#include "InterfaceContainer.h"
 #include <iostream>
-#include "AOEProjectile.h"
 
 Game::Game(const sf::State& windowState)
 	: windowTitle("Tower defense"),
-	windowSize(sf::VideoMode::getDesktopMode()),
+	windowSize(sf::Vector2u(1920, 1080)),
 	window(windowSize, windowTitle, windowState),
 	map(windowSize.size),
 	currentWaveText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	moneyText(Resources::fonts.Get(Resources::Font::BasicFont)),
 	livesText(Resources::fonts.Get(Resources::Font::BasicFont)),
+	fps(Resources::fonts.Get(Resources::Font::BasicFont)),
+	control(Resources::fonts.Get(Resources::Font::BasicFont)),
 	music(Resources::music.Get(Resources::Music::BasicMusic))
 {
 	initializeInterface();
 	initializeGameInfo();
+	window.setFramerateLimit(360);
 	window.setIcon(Resources::getIcon());
 	music.setLooping(true);
 	music.setVolume(25);
 	music.play();
+	control.setString(L"Escape - ѕауза\nSpace - «апустити хвилю\nѕ ћ - скинути вибрану вежу\nѕ ћ(по веж≥) - продати вежу");
+	fps.setString("FPS:");
+	fps.setPosition(sf::Vector2f(25.f, windowSize.size.y - fps.getGlobalBounds().size.y - 25.f));
+	control.setPosition(sf::Vector2f(25.f, windowSize.size.y - control.getGlobalBounds().size.y - 28.f - fps.getGlobalBounds().size.y));
 }
 
 void Game::Run()
@@ -35,33 +40,49 @@ void Game::Run()
 
 void Game::checkSelectedTower()
 {
-	if (Interface::getSelectedTower() == Interface::TowerType::Ballista)
+	//—творюЇмо статичну зм≥нну з останн≥м вибраним тоипом веж≥
+	static Interface::SelectedTowerType lastSelectedTower = Interface::SelectedTowerType::None;
+	auto currentSelectedTower = Interface::getSelectedTower();
+
+	//якщо вибраний тип веж≥ та останн≥й вибраний тип веж≥ в≥др≥зн€ютьс€ м≥н€Їмо вежу
+	if (currentSelectedTower != lastSelectedTower)
 	{
-		if (!pickableTower || pickableTower->getType() != Tower::TowerType::Ballista)
+		lastSelectedTower = currentSelectedTower;
+		//якщо вказ≥вник на вежу - nullptr, створюЇмо данн≥ в пам€т≥, €кщо ж вказ≥вник вже реал≥зований,
+		//ѕросто м≥н€Їмо вс≥ характеристики веж≥
+		switch (currentSelectedTower)
 		{
-			pickableTower = std::make_unique<Tower>(Tower::TowerType::Ballista, Resources::Texture::Ballista, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES);
+		case Interface::SelectedTowerType::Ballista:
+			if (!pickableTower)
+				pickableTower = std::make_unique<Tower>(Tower::TowerType::Ballista, Resources::Texture::Ballista, mousePosition, TowersFrames::BALLISTA_MAX_FRAMES);
+			else
+				pickableTower->changeTower(Tower::TowerType::Ballista);
+			break;
+
+		case Interface::SelectedTowerType::Bomber:
+			if (!pickableTower)
+				pickableTower = std::make_unique<Tower>(Tower::TowerType::Bomber, Resources::Texture::Bomber, mousePosition, TowersFrames::BOMBER_MAX_FRAMES);
+			else
+				pickableTower->changeTower(Tower::TowerType::Bomber);
+			break;
+
+		case Interface::SelectedTowerType::Wizzard:
+			if (!pickableTower)
+				pickableTower = std::make_unique<Tower>(Tower::TowerType::Wizzard, Resources::Texture::Wizzard, mousePosition, TowersFrames::WIZZARD_MAX_FRAMES);
+			else
+				pickableTower->changeTower(Tower::TowerType::Wizzard);
+			break;
+
+		default:
+			pickableTower.reset();
+			break;
 		}
 	}
-	else if (Interface::getSelectedTower() == Interface::TowerType::Bomber)
-	{
-		if (!pickableTower || pickableTower->getType() != Tower::TowerType::Bomber)
-		{
-			pickableTower = std::make_unique<Tower>(Tower::TowerType::Bomber, Resources::Texture::Bomber, mousePosition, TowersFrames::BOMBER_MAX_FRAMES);
-		}
-	}
-	else if (Interface::getSelectedTower() == Interface::TowerType::Wizzard)
-	{
-		if (!pickableTower || pickableTower->getType() != Tower::TowerType::Wizzard)
-		{
-			pickableTower = std::make_unique<Tower>(Tower::TowerType::Wizzard, Resources::Texture::Wizzard, mousePosition, TowersFrames::WIZZARD_MAX_FRAMES);
-		}
-	}
-	else
-		pickableTower.reset();
 }
 
 void Game::updatePickableTower()
 {
+	//ѕерев≥р€Їмо €ка вежа вибрана, чи можна њњ розм≥стити, ≥ €кщо вона вибрана, перем≥щуЇмо за курсором
 	checkSelectedTower();
 	checkCanPlace();
 	if (pickableTower)
@@ -80,6 +101,7 @@ void Game::checkCanPlace()
 {
 	canPlaceTower = true;
 
+	//якщо веж≥ перес≥каютьс€, тод≥ не можна розм≥стити нову вежу
 	for (const auto& tower : towers)
 	{
 		if (tower && pickableTower && tower->intersects(*pickableTower))
@@ -88,7 +110,7 @@ void Game::checkCanPlace()
 			break;
 		}
 	}
-
+	//якщо вежа перес≥каЇтьс€ з ≥нтерфейосм, тод≥ не можна розм≥стити вежу
 	for (const auto& interfaceContainer : interface)
 	{
 		if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceContainer.second.get()))
@@ -100,7 +122,7 @@ void Game::checkCanPlace()
 			}
 		}
 	}
-
+	//якщо вежа перес≥каЇтьс€ з картою, тод≥ не можна розм≥стити вежу
 	if (pickableTower && !map.canPlaceTower(*pickableTower))
 	{
 		canPlaceTower = false;
@@ -109,6 +131,8 @@ void Game::checkCanPlace()
 
 void Game::placeTower()
 {
+	//якщо вежа вибрана, њњ можна розм≥стити ≥ вистачаЇ грошей, додаЇмо до контейнеру
+	//веж нову вежу, та в≥дн≥маЇмо грош≥
 	if (pickableTower && canPlaceTower)
 	{
 		if (Interface::getMoney() >= pickableTower->getPrice() &&
@@ -149,6 +173,7 @@ void Game::addInterfaceContainer(const Interface::InterfaceType& interfaceType, 
 
 InterfaceContainer& Game::getInterfaceContainer(const Interface::InterfaceType& interfaceType)
 {
+	//ѕовертаЇмо посиланн€ на контейнер ≥нтерфейсу, €кщо в≥н ≥снуЇ
 	auto it = interface.find(interfaceType);
 	if (it != interface.end())
 	{
@@ -162,6 +187,7 @@ InterfaceContainer& Game::getInterfaceContainer(const Interface::InterfaceType& 
 
 void Game::initializeInterface()
 {
+	//—творюЇмо ≥нтерфейс вибору веж, додаЇмо до нього текст та кнопки
 	addInterfaceContainer(Interface::InterfaceType::SelectTowerInterface,
 		sf::Vector2f(300.f, windowSize.size.y),
 		sf::Vector2f(windowSize.size.x - 300.f, 0.f),
@@ -199,6 +225,7 @@ void Game::initializeInterface()
 
 void Game::initializeGameInfo()
 {
+	//—творюЇмо текст з ≥нформац≥Їю, та росташовуЇмо його зл≥ва в≥д ≥нтерфейсу вибору веж
 	sf::Vector2f textPosition;
 
 	auto& container = getInterfaceContainer(Interface::InterfaceType::SelectTowerInterface);
@@ -237,6 +264,7 @@ void Game::checkVictory()
 {
 	if (GameState::getState() == GameState::State::Win && GameState::getState() != GameState::State::Loss)
 	{
+		//якщо стан гри Win створюЇмо ≥нтерфейс перемоги, та додаЇмо текст ≥ кнопки до нього
 		addInterfaceContainer(Interface::InterfaceType::WinnerInterface,
 			sf::Vector2f(windowSize.size),
 			sf::Vector2f(0, 0),
@@ -273,6 +301,7 @@ void Game::checkLoss()
 {
 	if (Interface::getLives() == 0)
 	{
+		//якщо залишилось 0 житт≥в створюЇмо ≥нтерфейс поразки, та додаЇмо текст ≥ кнопки до нього
 		GameState::setState(GameState::State::Loss);
 		addInterfaceContainer(Interface::InterfaceType::LoserInterface,
 			sf::Vector2f(windowSize.size),
@@ -310,6 +339,7 @@ void Game::Pause()
 {
 	if (GameState::getState() == GameState::State::Pause)
 	{
+		//якщо стан гри Pause створюЇмо ≥нтерфейс паузи, та додаЇмо текст ≥ кнопки до нього
 		addInterfaceContainer(Interface::InterfaceType::PauseInterface,
 			sf::Vector2f(windowSize.size),
 			sf::Vector2f(0, 0),
@@ -347,9 +377,16 @@ void Game::Pause()
 	}
 }
 
-void Game::playSounds()
+void Game::playSound(const Resources::Sound soundId, float volume)
 {
-	std::unique_ptr<sf::Sound> soundPtr = nullptr;
+	auto sound = std::make_unique<sf::Sound>((Resources::sounds.Get(soundId)));
+	sound->setVolume(volume);
+	sound->play();
+	sounds.emplace_back(std::move(sound));
+}
+
+void Game::SoundsManager()
+{
 	for (const auto& enemy : enemies)
 	{
 		if (!enemy->isAlive())
@@ -357,39 +394,30 @@ void Game::playSounds()
 			switch (enemy->getType())
 			{
 			case Enemy::EnemyType::Goblin:
-				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::GoblinDeath));
-				soundPtr->setVolume(40);
+				playSound(Resources::Sound::GoblinDeath, 40.f);
 				break;
 			case Enemy::EnemyType::Orc:
-				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::OrcDeath));
-				soundPtr->setVolume(35);
+				playSound(Resources::Sound::OrcDeath, 35.f);
 				break;
 			case Enemy::EnemyType::Wolf:
-				soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::WolfDeath));
-				soundPtr->setVolume(15);
+				playSound(Resources::Sound::WolfDeath, 15.f);
 				break;
 			default:
-				break;
+				continue;
 			}
 		}
 	}
 
 	if (towerSelled)
 	{
-		soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::SellTower));
+		playSound(Resources::Sound::SellTower, 90.f);
 		towerSelled = false;
 	}
 
 	if (notEnoughMoney)
 	{
-		soundPtr = std::make_unique<sf::Sound>(Resources::sounds.Get(Resources::Sound::NotEnoughMoney));
+		playSound(Resources::Sound::NotEnoughMoney, 100.f);
 		notEnoughMoney = false;
-	}
-
-	if (soundPtr)
-	{
-		soundPtr->play();
-		sounds.emplace_back(std::move(soundPtr));
 	}
 }
 
@@ -409,6 +437,7 @@ void Game::Events()
 			window.close();
 		}
 
+		//якщо перейти на ≥нше в≥кно, ставитьс€ пауза
 		if (event->is<sf::Event::FocusLost>() && (GameState::getState() == GameState::State::Game ||
 			GameState::getState() == GameState::State::WavePlay))
 		{
@@ -437,9 +466,12 @@ void Game::Events()
 		{
 			if (mouseReleased->button == sf::Mouse::Button::Left)
 			{
-				for (auto& interfaceComponent : interface) {
-
-					if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceComponent.second.get())) {
+				//якщо нажата л≥ва кнопка миш≥, перев≥р€Їмо чи в interface знаходитьс€ пох≥дний клас
+				//InterfaceContainer, ≥ €кщо курсор в цьому контейнер≥, обробл€Їмо натисканн€
+				for (auto& interfaceComponent : interface)
+				{
+					if (auto* container = dynamic_cast<InterfaceContainer*>(interfaceComponent.second.get()))
+					{
 						if (container->contains(mousePosition))
 						{
 							canPlaceTower = false;
@@ -449,6 +481,7 @@ void Game::Events()
 				}
 				placeTower();
 
+				//якщо ми натиснули кнопку Resume, то в залежност≥ в≥д стану гри, прибираЇмо ≥нтерфейс цього стану
 				switch (GameState::getState())
 				{
 				case GameState::State::Game:
@@ -483,11 +516,12 @@ void Game::Events()
 			}
 			else if (mouseReleased->button == sf::Mouse::Button::Right)
 			{
+				//якщо натиснута права кнопка миш≥ ≥ курсор зноходитьс€ на веж≥, продаЇмо њњ
 				for (const auto& tower : towers)
 				{
 					if (tower->intersects(mousePosition) && !pickableTower)
 					{
-						Interface::addMoney(tower->getPrice() * 0.65f);
+						Interface::addMoney(tower->getPrice() * 0.75f);
 						moneyText.setFillColor(sf::Color::Green);
 						timeToShowMoneyTextColor = 0.3;
 						towers.remove(tower);
@@ -495,8 +529,8 @@ void Game::Events()
 						break;
 					}
 				}
-
-				Interface::setSelectedTower(Interface::TowerType::None);
+				//ѕрибираЇмо вибрану веж≥
+				Interface::setSelectedTower(Interface::SelectedTowerType::None);
 			}
 		}
 	}
@@ -531,7 +565,6 @@ void Game::Update(sf::Time deltaTime)
 		}
 
 		updateGameInfo(deltaTime);
-
 		if (GameState::getState() == GameState::State::WavePlay)
 		{
 			WavesManager::Update(deltaTime, enemies, map);
@@ -547,13 +580,14 @@ void Game::Update(sf::Time deltaTime)
 		interfaceComponent.second->Update(deltaTime, mousePosition);
 	}
 
-	playSounds();
+	SoundsManager();
 	sounds.remove_if(
 		[](const std::unique_ptr<sf::Sound>& sound)
 		{
 			return sound->getStatus() != sf::Sound::Status::Playing;
 		}
 	);
+	fps.setString("FPS: " + std::to_string(static_cast<int>(1 / deltaTime.asSeconds())));
 }
 
 void Game::Render()
@@ -570,7 +604,6 @@ void Game::Render()
 		window.draw(*tower);
 	}
 
-	showGameInfo();
 	for (auto& interfaceComponent : interface)
 	{
 		window.draw(*interfaceComponent.second);
@@ -580,6 +613,9 @@ void Game::Render()
 	{
 		window.draw(*pickableTower);
 	}
+	showGameInfo();
+	window.draw(fps);
+	window.draw(control);
 
 	window.display();
 }
