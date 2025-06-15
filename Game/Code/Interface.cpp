@@ -1,10 +1,9 @@
 #include "Interface.h"
-#include <iostream>
 
 int Interface::currentWave = Interface::START_WAVE;
 int Interface::money = Interface::START_MONEY;
 int Interface::lives = Interface::START_LIVES;
-Interface::TowerType Interface::selectedTower = Interface::TowerType::None;
+Interface::SelectedTowerType Interface::selectedTower = Interface::SelectedTowerType::None;
 const sf::Color Interface::BASE_BACKGROUND_COLOR = sf::Color(0, 0, 0, 50);
 
 Interface::~Interface() {}
@@ -58,12 +57,12 @@ void Interface::lostlives()
 	}
 }
 
-Interface::TowerType Interface::getSelectedTower()
+Interface::SelectedTowerType Interface::getSelectedTower()
 {
 	return selectedTower;
 }
 
-void Interface::setSelectedTower(TowerType towerType)
+void Interface::setSelectedTower(SelectedTowerType towerType)
 {
 	selectedTower = towerType;
 }

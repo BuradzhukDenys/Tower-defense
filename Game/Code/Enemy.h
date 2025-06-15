@@ -36,7 +36,6 @@ public:
     bool isAlive() const;
 
     Enemy::EnemyType& getType();
-    float getHealth() const;//delete
     void piersed(bool wasPiersed);
     bool wasPiersed() const;
 
@@ -59,7 +58,7 @@ private:
 
     EnemyType type;
     Direction direction;
-    float distancePerFrame = 6.f;
+    float distancePerFrame = 6.f;//Дистанція, через яку ми міняємо кадр
     float distanceForLastFrame = 0.f;
     bool enemyIsAlive = true;
     bool piersedEnemy = false;
@@ -67,6 +66,7 @@ private:
     int maxHealthPoints;
     sf::RectangleShape healthBar;
     sf::RectangleShape healthBarBackground;
+    static constexpr sf::Vector2f HEALTH_BAR_SIZE = {30.f, 4.f};
 
     static std::map<EnemyType, EnemyStats> enemiesStatsMap;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

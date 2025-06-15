@@ -4,6 +4,7 @@
 class Resources
 {
 public:
+	//Ідентифікатори доступу до ресурсів
 	enum class Texture
 	{
 		Ballista,
@@ -47,6 +48,8 @@ public:
 	static ResourceManager<sf::SoundBuffer, Sound> sounds;
 	static ResourceManager<sf::Music, Music> music;
 private:
+	//Загружаємо всі текстури, звуки, музику, шрифт та іконку, один раз, щоб потім до них доступатися,
+	//та не загружати кожен раз
 	static void InitializeTextures();
 	static void InitializeFonts();
 	static void InitializeSounds();

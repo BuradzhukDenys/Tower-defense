@@ -1,5 +1,4 @@
 #pragma once
-#include <ostream>
 class GameState
 {
 public:
@@ -24,6 +23,4 @@ private:
 	static State stateBeforePause;
 	static State gameState;
 };
-
-std::ostream& operator<<(std::ostream& os, const GameState::State& gameState);//delete
 

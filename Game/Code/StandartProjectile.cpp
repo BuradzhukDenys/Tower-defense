@@ -13,6 +13,7 @@ void StandartProjectile::Update(sf::Time deltaTime, const sf::Vector2f& mousePos
 
 void StandartProjectile::checkHitAndDamageEnemy(const std::list<std::unique_ptr<Enemy>>& enemies)
 {
+	//Якщо влучив в ворога, просто наносиму шкоду йому, та знищуємо снаряд
 	for (const auto& enemy : enemies)
 	{
 		if (hitEnemy(enemy))

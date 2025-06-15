@@ -1,21 +1,15 @@
 #pragma once
 #include <SFML/Graphics/Drawable.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include "Resources.h"
 
-namespace sf
-{
-	class Time;
-}
-
 class Interface : public sf::Drawable
 {
 public:
-	enum class TowerType
+	enum class SelectedTowerType
 	{
 		Ballista,
 		Bomber,
@@ -26,7 +20,6 @@ public:
 	enum class InterfaceType
 	{
 		SelectTowerInterface,
-		UpgradeTowerInterface,
 		PauseInterface,
 		LoserInterface,
 		WinnerInterface
@@ -37,8 +30,8 @@ public:
 
 	virtual ~Interface();
 
-	static TowerType getSelectedTower();
-	static void setSelectedTower(TowerType towerType);
+	static SelectedTowerType getSelectedTower();
+	static void setSelectedTower(SelectedTowerType towerType);
 
 	static int getCurrentWave();
 	static int getMoney();
@@ -57,7 +50,7 @@ private:
 	static constexpr int START_MONEY = 550;
 	static constexpr int START_LIVES = 10;
 	static constexpr int MONEY_AFTER_WAVE = 85;
-	static TowerType selectedTower;
+	static SelectedTowerType selectedTower;
 	static int currentWave;
 	static int money;
 	static int lives;

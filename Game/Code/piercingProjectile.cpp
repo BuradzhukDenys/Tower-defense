@@ -16,6 +16,8 @@ void piercingProjectile::checkHitAndDamageEnemy(const std::list<std::unique_ptr<
 {
 	for (const auto& enemy : enemies)
 	{
+		//якщо снар€д влучив в ворога, ≥ в≥н не був пробитий до цього, робимо його пробитим,
+		//наносимо шкоду, та змуншуЇмо л≥чильник пробитих ворог≥в
 		if (hitEnemy(enemy))
 		{
 			if (!enemy->wasPiersed())

@@ -14,9 +14,7 @@ public:
 	sf::Vector2f getPosition() const;
 	void setPosition(const sf::Vector2f& position);
 	sf::Angle getRotation() const;
-	void setRotation(const sf::Angle& angle);
 	const sf::Sprite& getSprite() const;
-	sf::Vector2f getSize() const;
 
 	virtual void playAnimation(sf::Time deltaTime) {};
 	virtual void Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const std::list<std::unique_ptr<Enemy>>& enemies) = 0;

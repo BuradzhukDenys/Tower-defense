@@ -1,7 +1,4 @@
 #include "InterfaceContainer.h"
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/System/Time.hpp>
-#include <iostream>
 #include "WavesManager.h"
 
 InterfaceContainer::InterfaceContainer(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& backgroundColor)
@@ -17,7 +14,7 @@ void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf
 	{
 		auto ptrButton = std::make_unique<Button>(
 			sf::Vector2f(sizes[i].x, sizes[i].y),
-			sf::Vector2f(firstButtonPosition.x, firstButtonPosition.y + MARGIN_BETWEEN_COMPONENTS),
+			sf::Vector2f(firstButtonPosition.x, firstButtonPosition.y + MARGIN_BETWEEN_COMPONENTS_Y),
 			colors[i],
 			texts[i],
 			buttonTypes[i]
@@ -33,12 +30,12 @@ void InterfaceContainer::addButtons(const int buttonsCount, const std::vector<sf
 					lastTextLowerBound = text->getPosition().y + text->getGlobalBounds().size.y;
 				}
 			}
-			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, lastTextLowerBound + MARGIN_BETWEEN_COMPONENTS));
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, lastTextLowerBound + MARGIN_BETWEEN_COMPONENTS_Y));
 		}
 
 		if (!this->buttons.empty())
 		{
-			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, (buttons[i - 1]->getPosition().y + buttons[i - 1]->getSize().y) + MARGIN_BETWEEN_COMPONENTS));
+			ptrButton->setPosition(sf::Vector2f(ptrButton->getPosition().x, (buttons[i - 1]->getPosition().y + buttons[i - 1]->getSize().y) + MARGIN_BETWEEN_COMPONENTS_Y));
 		}
 
 		buttons.emplace_back(std::move(ptrButton));
@@ -58,21 +55,10 @@ void InterfaceContainer::addContainerText(const std::string& containerString, co
 		positionInGUI = GUI.getPosition();
 	}
 
-	ptrText->setPosition(sf::Vector2f(positionInGUI.x, positionInGUI.y + ptrText->getOrigin().y + MARGIN_BETWEEN_COMPONENTS));
+	ptrText->setPosition(sf::Vector2f(positionInGUI.x, positionInGUI.y + ptrText->getOrigin().y + MARGIN_BETWEEN_COMPONENTS_Y));
 	ptrText->setFillColor(colorText);
 
 	containerTexts.emplace_back(std::move(ptrText));
-}
-
-float InterfaceContainer::getButtonLowerBound(const Button::ButtonType& buttonType)
-{
-	for (const auto& button : buttons)
-	{
-		if (button->getButtonType() == buttonType)
-		{
-			return button->getPosition().y + button->getSize().y;
-		}
-	}
 }
 
 sf::RectangleShape InterfaceContainer::getGUI() const
@@ -90,36 +76,22 @@ sf::Vector2f InterfaceContainer::getPosition() const
 	return GUI.getPosition();
 }
 
-sf::Vector2f InterfaceContainer::getContainerTextPositionSize(const std::string& text) const
-{
-	if (!containerTexts.empty())
-	{
-		for (const auto& containerText : containerTexts)
-		{
-			if (containerText->getString() == text)
-			{
-				return containerText->getPosition() + containerText->getGlobalBounds().size;
-			}
-		}
-	}
-
-	return { 0, MARGIN_BETWEEN_COMPONENTS };
-}
-
 void InterfaceContainer::handleClick(const sf::Vector2f& mousePos)
 {
+	//В залежності від кнопки, якщо вона була натиснута, тоді вибираємо вежу, або міняємо
+	//стан гри, або запускаємо хвилю
 	for (const auto& button : buttons) {
 		if (button->isClicked(mousePos)) {
 			switch (button->getButtonType())
 			{
 			case Button::ButtonType::Ballista:
-				Interface::setSelectedTower(Interface::TowerType::Ballista);
+				Interface::setSelectedTower(Interface::SelectedTowerType::Ballista);
 				break;
 			case Button::ButtonType::Bomber:
-				Interface::setSelectedTower(Interface::TowerType::Bomber);
+				Interface::setSelectedTower(Interface::SelectedTowerType::Bomber);
 				break;
 			case Button::ButtonType::Wizzard:
-				Interface::setSelectedTower(Interface::TowerType::Wizzard);
+				Interface::setSelectedTower(Interface::SelectedTowerType::Wizzard);
 				break;
 			case Button::ButtonType::Play:
 				if (GameState::getState() == GameState::State::Game)

@@ -3,6 +3,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Audio.hpp>
 
+//Шаблон класу, для створення менеджера ресурів, щоб завантажити їх лише один раз, і потім звертатися до них
 template <typename ResourceType, typename ResourceIdentifier>
 class ResourceManager
 {
@@ -26,6 +27,7 @@ private:
 	std::unordered_map<ResourceIdentifier, std::unique_ptr<ResourceType>> resourceMap;
 };
 
+//Шаблони класу з частковою спеціалізацією, для музики та шрифтів
 template<typename ResourceIdentifier>
 class ResourceManager<sf::Font, ResourceIdentifier>
 {

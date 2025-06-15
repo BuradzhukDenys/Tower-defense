@@ -1,13 +1,14 @@
 #include "Projectile.h"
 #include "Tower.h"
-#include <iostream>
 
 Projectile::Projectile(Resources::Texture textureID, const Tower& tower, float moveSpeed, float duration, const int framesCount)
 	: Entity(textureID, framesCount), moveSpeed(moveSpeed), duration(duration), projectileIsAlive(true), damage(tower.getDamage())
 {
+	//Створюємо снаряд в позиції вежі, та ставимо кут повроту до ворога
 	sprite.setPosition(tower.getPosition());
 	sprite.setRotation(tower.getRotateAngleToEnemy());
 
+	//Визначаємо напрямко руху снаряда
 	float angleInRadians = tower.getRotateAngleToEnemy().asRadians();
 	moveDirection = sf::Vector2f(std::cos(angleInRadians), std::sin(angleInRadians));
 }

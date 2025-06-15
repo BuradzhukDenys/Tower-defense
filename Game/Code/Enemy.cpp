@@ -1,5 +1,4 @@
 #include "Enemy.h"
-#include "Interface.h"
 #include <sstream>
 #include <fstream>
 
@@ -7,8 +6,8 @@ std::map<Enemy::EnemyType, Enemy::EnemyStats> Enemy::enemiesStatsMap;
 
 Enemy::Enemy(const EnemyType type, Resources::Texture textureID, const sf::Vector2f& position, const int framesCount)
 	: Entity(textureID, framesCount),
-	direction(Enemy::Direction::Right), healthBar({ 30.f, 4.f }),
-	healthBarBackground({ 30.f, 4.f }), type(type)
+	direction(Enemy::Direction::Right), healthBar(HEALTH_BAR_SIZE),
+	healthBarBackground(HEALTH_BAR_SIZE), type(type)
 {
 	auto it = enemiesStatsMap.find(type);
 	if (it != enemiesStatsMap.end())
@@ -22,6 +21,7 @@ Enemy::Enemy(const EnemyType type, Resources::Texture textureID, const sf::Vecto
 	else
 		throw std::runtime_error("No stats found for this enemy type");
 
+	//Ставимо якір спрайта, в центрі лівого краю, та позицію, по правому краю спрайта
 	sprite.setOrigin({ sprite.getLocalBounds().position.x, sprite.getLocalBounds().getCenter().y });
 	sprite.setPosition({ position.x - sprite.getLocalBounds().size.x, position.y});
 	healthBarBackground.setOrigin({ healthBarBackground.getLocalBounds().getCenter().x, 0 });
@@ -70,11 +70,6 @@ Enemy::EnemyType& Enemy::getType()
 	return type;
 }
 
-float Enemy::getHealth() const
-{
-	return healthPoints;
-}
-
 void Enemy::piersed(bool wasPiersed)
 {
 	piersedEnemy = wasPiersed;
@@ -87,6 +82,7 @@ bool Enemy::wasPiersed() const
 
 void Enemy::updateHealthBar()
 {
+	//Визначаємо процент здоров'я ворога, і відповідно задаємо розмір полоски здоров'я
 	float healthPercent = static_cast<float>(healthPoints) / maxHealthPoints;
 	healthBar.setSize(sf::Vector2f(healthBarBackground.getSize().x * healthPercent, 4.f));
 }
@@ -126,6 +122,7 @@ void Enemy::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition, const 
 	healthBar.move(moveOffset);
 	healthBarBackground.move(moveOffset);
 
+	//Визначаємо дистанція яку пройшов ворог
 	distanceForLastFrame += std::sqrt(moveOffset.x * moveOffset.x + moveOffset.y * moveOffset.y);
 	playAnimation(deltaTime);
 }
@@ -146,6 +143,7 @@ void Enemy::initializeEnemiesStats()
 		std::string EnemyName;
 		lineStream >> EnemyName;
 
+		//Пропускаємо коментарі, які починаються з '#', пусті рядки
 		if (line.empty() || line[0] == '#') continue;
 		if (!EnemyName.empty() && EnemyName.back() == ':')
 			EnemyName.pop_back();

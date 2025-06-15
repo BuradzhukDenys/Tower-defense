@@ -21,32 +21,3 @@ void GameState::setStateBeforePause(const State& state)
 {
 	stateBeforePause = state;
 }
-
-std::ostream& operator<<(std::ostream& os, const GameState::State& gameState)
-{
-	switch (gameState)
-	{
-	case GameState::State::Pause:
-		os << "Pause\n";
-		break;
-	case GameState::State::Game:
-		os << "Game\n";
-		break;
-	case GameState::State::WavePlay:
-		os << "Wave play\n";
-		break;
-	case GameState::State::Win:
-		os << "Win\n";
-		break;
-	case GameState::State::Loss:
-		os << "Loss\n";
-		break;
-	case GameState::State::Exit:
-		os << "Exit\n";
-		break;
-	default:
-		break;
-	}
-
-	return os;
-}

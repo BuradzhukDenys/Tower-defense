@@ -1,8 +1,6 @@
 #include "Button.h"
 #include "Interface.h"
 #include "Resources.h"
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/Rendertarget.hpp>
 #include "GameState.h"
 
 Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color, const std::string& buttonTextString, const ButtonType& buttonType)
@@ -22,24 +20,9 @@ bool Button::isClicked(const sf::Vector2f& mousePos) const
 	return this->buttonShape.getGlobalBounds().contains(mousePos);
 }
 
-const sf::Text& Button::getButtonText()
-{
-	return buttonText;
-}
-
-void Button::setButtonText(const std::string& text)
-{
-	buttonText.setString(text);
-}
-
 const sf::Vector2f Button::getSize()
 {
 	return buttonShape.getSize();
-}
-
-void Button::setSize(const sf::Vector2f& size)
-{
-	buttonShape.setSize(size);
 }
 
 const sf::Vector2f Button::getPosition()
@@ -53,23 +36,14 @@ void Button::setPosition(const sf::Vector2f& position)
 	buttonText.setPosition(position);
 }
 
-const sf::RectangleShape& Button::getButtonShape()
-{
-	return buttonShape;
-}
-
 const Button::ButtonType& Button::getButtonType()
 {
 	return buttonType;
 }
 
-void Button::setScale(const sf::Vector2f& scale)
-{
-	buttonShape.setScale(scale);
-}
-
 void Button::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition)
 {
+	//якщо курсор на кнопц≥, робимо навколо кнопки рамку
 	if (isClicked(mousePosition))
 	{
 		buttonShape.setOutlineThickness(-5.f);
@@ -81,22 +55,24 @@ void Button::Update(sf::Time deltaTime, const sf::Vector2f& mousePosition)
 		buttonShape.setOutlineColor(sf::Color::Transparent);
 	}
 
-	if (Interface::getSelectedTower() == Interface::TowerType::Ballista && buttonType == Button::ButtonType::Ballista)
+	//якщо вибрана вежа, ≥ тим кнопки - ц€ ж вежа, залишаЇмо рамку
+	if (Interface::getSelectedTower() == Interface::SelectedTowerType::Ballista && buttonType == Button::ButtonType::Ballista)
 	{
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
 	}
-	else if (Interface::getSelectedTower() == Interface::TowerType::Bomber && buttonType == Button::ButtonType::Bomber)
+	else if (Interface::getSelectedTower() == Interface::SelectedTowerType::Bomber && buttonType == Button::ButtonType::Bomber)
 	{
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
 	}
-	else if (Interface::getSelectedTower() == Interface::TowerType::Wizzard && buttonType == Button::ButtonType::Wizzard)
+	else if (Interface::getSelectedTower() == Interface::SelectedTowerType::Wizzard && buttonType == Button::ButtonType::Wizzard)
 	{
 		buttonShape.setOutlineThickness(-5.f);
 		buttonShape.setOutlineColor(sf::Color::Red);
 	}
 	
+	//якщо стан гри це WavePlay, то робимо кол≥р кнопки грати, с≥рим
 	if (GameState::getState() == GameState::State::WavePlay && buttonType == Button::ButtonType::Play)
 	{
 		buttonShape.setFillColor(sf::Color(100, 100, 100));

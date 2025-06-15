@@ -15,6 +15,7 @@ void WavesManager::startWave()
 	currentWaveIndex = Interface::getCurrentWave() - 1;
 	if (currentWaveIndex >= 0 && currentWaveIndex < Interface::MAX_WAVES)
 	{
+		//Задаємо параметри індексів, коли хвиля починається
 		currentWavePattern = &wavesPattern[currentWaveIndex];
 		currentEnemyTypeIndex = 0;
 		spawnedEnemiesOfType = 0;
@@ -31,9 +32,13 @@ void WavesManager::Update(sf::Time deltaTime, std::list<std::unique_ptr<Enemy>>&
 		return;
 	}
 
+	//Якщо створили всіх типів ворогів, то перестаємо їх створювати
 	if (currentEnemyTypeIndex >= currentWavePattern->size())
 	{
 		spawnEnemy = false;
+		//Якщо знищили всіх ворогів в хвилі, закінчуємо її та переключаємо стан гри на Game,
+		//додаємо гроші за закінчення хвилі та переходимо на наступну хвилю, і якщо це остання хвиля,
+		//і немає ворогів переключаємо стан гри на Win
 		if (enemies.empty())
 		{
 			waveActive = false;
@@ -55,15 +60,18 @@ void WavesManager::Update(sf::Time deltaTime, std::list<std::unique_ptr<Enemy>>&
 	timeUntilNextSpawn -= deltaTime.asSeconds();
 	if (spawnEnemy && timeUntilNextSpawn <= 0.f)
 	{
+		//Створюємо конфігурацію за поточним шаблоном хвилі, та за індексом типу ворога в ньому
 		const auto& config = (*currentWavePattern)[currentEnemyTypeIndex];
 
 		enemies.emplace_back(std::make_unique<Enemy>(
 			config.enemyType,
 			config.enemyTexture,
-			map.getStartMap(),
+			map.getStartRoad(),
 			config.enemyFrames
 		));
 
+		//Збільшуємо кількість створених ворогів за типом, і якщо за цим типом всіх створили,
+		//переходимо на наступний тип ворогів
 		spawnedEnemiesOfType++;
 		timeUntilNextSpawn = config.timeBetweenSpawn;
 
